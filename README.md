@@ -76,8 +76,8 @@ or
 Add the following directories to your project, or build paths:
 	./dependencies/ios-utils/source
 	./dependencies/ios-utils/source2
-	./dependencies/ios-utils/dependencies/ios-shared
-	./dependencies/ios-utils/dependencies/viewjs
+	./dependencies/ios-utils/ios-shared
+	./dependencies/ios-utils/viewjs
 	
 The following additional dependencies must be added as well:
 	AVFoundation.framework (usually found at "/../something/AVFoundation.framework")
