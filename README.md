@@ -90,7 +90,7 @@ Commands
 
 Add a dependency to user project.
 
-?> modulo add [[name/url]] [[destination]] 
+?> modulo add [name/url] [destination] 
 
 
 
