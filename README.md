@@ -45,6 +45,7 @@ Modulo Specification
 
 *Example directory structure:*
 
+```text
 modulo.spec
 /source
 	...
@@ -58,13 +59,13 @@ modulo.spec
 	/viewjs
 		/source
 			...
-			
+```			
 	
 *Example of a project adding a module:*
 
 ?> modulo add ios-utils ./dependencies
 
-	or
+or
 	
 ?> modulo add git@github.com:setdirection/ios-utils.git ./dependencies
 
