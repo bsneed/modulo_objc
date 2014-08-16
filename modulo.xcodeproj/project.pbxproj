@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		CA44AFF6199E79CB00AE1A15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFF5199E79CB00AE1A15 /* main.m */; };
-		CA44AFFE199E7B0300AE1A15 /* SDCommandLineHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFFD199E7B0300AE1A15 /* SDCommandLineHelper.m */; };
+		CA44AFFE199E7B0300AE1A15 /* SDCommandLineParser.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */; };
+		CA9AB672199F352000108B45 /* MODCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB671199F352000108B45 /* MODCommand.m */; };
+		CA9AB675199F43F100108B45 /* MODSetCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB674199F43F100108B45 /* MODSetCommand.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,13 +28,17 @@
 /* Begin PBXFileReference section */
 		CA44AFF2199E79CB00AE1A15 /* modulo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = modulo; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA44AFF5199E79CB00AE1A15 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		CA44AFFC199E7B0300AE1A15 /* SDCommandLineHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDCommandLineHelper.h; sourceTree = "<group>"; };
-		CA44AFFD199E7B0300AE1A15 /* SDCommandLineHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDCommandLineHelper.m; sourceTree = "<group>"; };
+		CA44AFFC199E7B0300AE1A15 /* SDCommandLineParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDCommandLineParser.h; sourceTree = "<group>"; };
+		CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDCommandLineParser.m; sourceTree = "<group>"; };
 		CA44B000199E84AB00AE1A15 /* Global.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Global.xcconfig; sourceTree = "<group>"; };
 		CA44B001199E84AB00AE1A15 /* Project-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Debug.xcconfig"; sourceTree = "<group>"; };
 		CA44B002199E84AB00AE1A15 /* Project-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Project-Release.xcconfig"; sourceTree = "<group>"; };
 		CA44B004199E84AB00AE1A15 /* ObjectiveCGenerics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectiveCGenerics.h; sourceTree = "<group>"; };
 		CA44B005199E84AB00AE1A15 /* SDMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMacros.h; sourceTree = "<group>"; };
+		CA9AB670199F352000108B45 /* MODCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODCommand.h; sourceTree = "<group>"; };
+		CA9AB671199F352000108B45 /* MODCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODCommand.m; sourceTree = "<group>"; };
+		CA9AB673199F43F100108B45 /* MODSetCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSetCommand.h; sourceTree = "<group>"; };
+		CA9AB674199F43F100108B45 /* MODSetCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODSetCommand.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,9 +73,10 @@
 			children = (
 				CA44AFFF199E84AB00AE1A15 /* Configurations */,
 				CA44B003199E84AB00AE1A15 /* Macros */,
+				CA9AB66F199F34E800108B45 /* Commands */,
 				CA44AFF5199E79CB00AE1A15 /* main.m */,
-				CA44AFFC199E7B0300AE1A15 /* SDCommandLineHelper.h */,
-				CA44AFFD199E7B0300AE1A15 /* SDCommandLineHelper.m */,
+				CA44AFFC199E7B0300AE1A15 /* SDCommandLineParser.h */,
+				CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */,
 			);
 			path = modulo;
 			sourceTree = "<group>";
@@ -91,6 +98,17 @@
 				CA44B005199E84AB00AE1A15 /* SDMacros.h */,
 			);
 			path = Macros;
+			sourceTree = "<group>";
+		};
+		CA9AB66F199F34E800108B45 /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				CA9AB670199F352000108B45 /* MODCommand.h */,
+				CA9AB671199F352000108B45 /* MODCommand.m */,
+				CA9AB673199F43F100108B45 /* MODSetCommand.h */,
+				CA9AB674199F43F100108B45 /* MODSetCommand.m */,
+			);
+			path = Commands;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,8 +167,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA44AFFE199E7B0300AE1A15 /* SDCommandLineHelper.m in Sources */,
+				CA44AFFE199E7B0300AE1A15 /* SDCommandLineParser.m in Sources */,
+				CA9AB675199F43F100108B45 /* MODSetCommand.m in Sources */,
 				CA44AFF6199E79CB00AE1A15 /* main.m in Sources */,
+				CA9AB672199F352000108B45 /* MODCommand.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

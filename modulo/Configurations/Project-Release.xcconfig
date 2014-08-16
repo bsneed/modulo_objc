@@ -2,7 +2,7 @@
 
 // Start with global project settings
 
-#include "Global-iOS.xcconfig"
+#include "Global.xcconfig"
 
 // Then add changes on top:
 

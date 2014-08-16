@@ -7,20 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SDCommandLineHelper.h"
+#import "SDCommandLineParser.h"
+#import "MODSetCommand.h"
 
-// -abc cmd1 arg11 arg12 cmd2 -def arg21 cmd3 arg31 -xyz arg32
+// -abc cmd1 arg1 arg2 -def -all arg3
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         
-        NSArray *supportedCommands = @[@"cmd1", @"cmd2", @"cmd3"];
-        NSArray *supportedFlags = @[@"a", @"b", @"c", @"d", @"e", @"f", @"x", @"y", @"z"];
+        //NSArray *supportedCommands = @[@"cmd1", @"cmd2", @"cmd3"];
+        //NSArray *supportedFlags = @[@"all", @"a", @"b", @"c", @"d", @"e", @"f", @"x", @"y", @"z"];
         
-        SDCommandLineHelper *commandLine = [[SDCommandLineHelper alloc] initWithSupportedCommands:(NSArray<NSString> *)supportedCommands flags:(NSArray<NSString> *)supportedFlags];
+        MODCommand *cmd1 = [MODCommand commandWithName:@"cmd1" primary:YES];
+        MODSetCommand *setCommand = [MODSetCommand commandWithName:@"set" primary:YES];
+        
+        SDCommandLineParser *commandLine = [SDCommandLineParser sharedInstance];
+        [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[cmd1, setCommand]];
+        [commandLine processCommandLine];
 
-        NSLog(@"found flags: %@", commandLine.flags);
-        NSLog(@"found commands: %@", commandLine.commands);
+        NSLog(@"found command: %@", commandLine.command);
     }
     
     return 0;
