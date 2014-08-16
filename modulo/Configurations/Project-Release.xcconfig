@@ -1,0 +1,20 @@
+// Xcode settings for all SetDirection iOS Release configurations
+
+// Start with global project settings
+
+#include "Global-iOS.xcconfig"
+
+// Then add changes on top:
+
+// Yes, check the product!
+
+VALIDATE_PRODUCT = YES
+
+// Save a dSYM file with debugging symbols in it
+
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+
+// same as #define NS_BLOCK_ASSERTIONS 1
+// also turn off assert(3) assertions a la -DNDEBUG
+
+GCC_PREPROCESSOR_DEFINITIONS = NS_BLOCK_ASSERTIONS=1 NDEBUG $(inherited)
