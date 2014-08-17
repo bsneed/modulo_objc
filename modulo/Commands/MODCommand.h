@@ -11,5 +11,6 @@
 @interface MODCommand : SDCommand
 
 @property (nonatomic, readonly) BOOL verbose;
+@property (nonatomic, readonly) BOOL silent;
 
 @end

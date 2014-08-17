@@ -13,14 +13,14 @@
 @interface SDCommand ()
 - (instancetype)initWithCommandName:(NSString *)name primary:(BOOL)primary;
 - (void)addCommandArgument:(NSString *)argument;
-- (void)addCommandFlag:(NSString *)flag;
-- (BOOL)stringIsFlag:(NSString *)string;
+- (void)addCommandOption:(NSString *)option;
+- (BOOL)stringIsOption:(NSString *)string;
 @end
 
 @implementation SDCommand
 {
     NSMutableArray *_rawArguments;
-    NSMutableSet *_rawFlags;
+    NSMutableSet *_rawOptions;
 }
 
 + (instancetype)commandWithName:(NSString *)name primary:(BOOL)primary
@@ -33,8 +33,8 @@
     if ((self = [super init]))
     {
         _rawArguments = [NSMutableArray array];
-        _rawFlags = [NSMutableSet set];
-        _command = name;
+        _rawOptions = [NSMutableSet set];
+        _commandName = name;
         _primary = primary;
     }
     
@@ -45,37 +45,45 @@
 {
     NSMutableString *result = [[NSMutableString alloc] init];
 
-    [result appendFormat:@"command: '%@', arguments: ", self.command];
+    [result appendFormat:@"command: '%@' {\n    arguments: ", self.commandName];
     for (NSUInteger i = 0; i < self.arguments.count; i++)
     {
         NSString *argument = [self.arguments objectAtIndex:i];
-        [result appendFormat:@"%@, ", argument];
+        [result appendFormat:@"%@", argument];
+        if (i != self.arguments.count - 1)
+            [result appendString:@", "];
     }
     
-    [result appendString:@"flags: "];
-    NSArray *flags = [self.flags allObjects];
-    for (NSUInteger i = 0; i < flags.count; i++)
+    NSArray *options = [self.options allObjects];
+    if (options.count > 0)
     {
-        NSString *flag = [flags objectAtIndex:i];
-        [result appendFormat:@"%@, ", flag];
+        [result appendString:@"\n\toptions: "];
+        for (NSUInteger i = 0; i < options.count; i++)
+        {
+            NSString *option = [options objectAtIndex:i];
+            [result appendFormat:@"%@", option];
+            if (i != options.count - 1)
+                [result appendString:@", "];
+        }
     }
+    
+    [result appendString:@"\n}\n"];
     
     return result;
 }
 
-- (BOOL)hasFlag:(NSString *)flag
+- (BOOL)hasOption:(NSString *)option
 {
-    if ([self.flags containsObject:flag])
+    if ([self.options containsObject:option])
         return YES;
     return NO;
 }
 
 - (NSString *)argumentAtIndex:(NSUInteger)index
 {
-    if (index > _rawArguments.count - 1)
-        return nil;
-    
-    return [_rawArguments objectAtIndex:index];
+    if (index < _rawArguments.count)
+        return [_rawArguments objectAtIndex:index];
+    return nil;
 }
 
 - (NSArray<NSString> *)arguments
@@ -83,9 +91,9 @@
     return (NSArray<NSString> *)[NSArray arrayWithArray:_rawArguments];
 }
 
-- (NSSet<NSString> *)flags
+- (NSSet<NSString> *)options
 {
-    return (NSSet<NSString> *)[NSSet setWithSet:_rawFlags];
+    return (NSSet<NSString> *)[NSSet setWithSet:_rawOptions];
 }
 
 - (void)addCommandArgument:(NSString *)argument
@@ -93,32 +101,32 @@
     [_rawArguments addObject:argument];
 }
 
-- (BOOL)stringIsFlag:(NSString *)string
+- (BOOL)stringIsOption:(NSString *)string
 {
     // this catches "-help" and "--help" and treats them the same.
-    NSString *filteredFlag = [string stringByReplacingOccurrencesOfString:@"-" withString:@""];
+    NSString *filteredOption = [string stringByReplacingOccurrencesOfString:@"-" withString:@""];
     
     return (([string rangeOfString:@"-"].location == 0) ||
-            ([self.supportedFlags containsObject:filteredFlag]));
+            ([self.supportedOptions containsObject:filteredOption]));
 }
 
-- (void)addCommandFlag:(NSString *)flag
+- (void)addCommandOption:(NSString *)option
 {
-    if (flag.length < 2)
+    if (option.length < 2)
         return;
     
     // this catches "-help", "--help" and "help" and treats them the same.
-    NSString *filteredFlag = [flag stringByReplacingOccurrencesOfString:@"-" withString:@""];
+    NSString *filteredOption = [option stringByReplacingOccurrencesOfString:@"-" withString:@""];
     
-    if ([self.supportedFlags containsObject:filteredFlag])
-        [_rawFlags addObject:filteredFlag];
+    if ([self.supportedOptions containsObject:filteredOption])
+        [_rawOptions addObject:filteredOption];
     else
     {
-        for (NSUInteger i = 0; i < filteredFlag.length; i++)
+        for (NSUInteger i = 0; i < filteredOption.length; i++)
         {
-            NSString *character  = [NSString stringWithFormat:@"%c", [filteredFlag characterAtIndex:i]];
-            if ([self.supportedFlags containsObject:character])
-                [_rawFlags addObject:character];
+            NSString *character  = [NSString stringWithFormat:@"%c", [filteredOption characterAtIndex:i]];
+            if ([self.supportedOptions containsObject:character])
+                [_rawOptions addObject:character];
         }
     }
 }
@@ -133,6 +141,15 @@
     // do nothing.
 }
 
+- (void)printHelp
+{
+    
+}
+
+- (NSString *)helpDescription
+{
+    return @"No description";
+}
 
 @end
 
@@ -140,8 +157,6 @@ GENERICSABLE_IMPLEMENTATION(SDCommand)
 
 
 #pragma mark - SDCommandLineHelper
-
-GENERICSABLE_IMPLEMENTATION(NSString)
 
 @implementation SDCommandLineParser
 {
@@ -171,6 +186,8 @@ GENERICSABLE_IMPLEMENTATION(NSString)
         _rawArguments = [_processInfo arguments];
         _environment = [_processInfo environment];
         _processID = [_processInfo processIdentifier];
+        _processName = [_processInfo processName];
+        _startingWorkingPath = [[NSFileManager defaultManager] currentDirectoryPath];
         
         _supportedCommands = [NSMutableArray array];
     }
@@ -185,6 +202,10 @@ GENERICSABLE_IMPLEMENTATION(NSString)
     {
         NSString *arg = [_rawArguments objectAtIndex:i];
         
+        // double-dash the fuck out of here and stop processing.
+        if ([arg isEqualToString:@"--"])
+            return;
+        
         if (!_command)
         {
             _command = [self commandForString:arg];
@@ -192,8 +213,8 @@ GENERICSABLE_IMPLEMENTATION(NSString)
         else
         if (_command)
         {
-            if ([_command stringIsFlag:arg])
-                [_command addCommandFlag:arg];
+            if ([_command stringIsOption:arg])
+                [_command addCommandOption:arg];
             else
                 [_command addCommandArgument:arg];
         }
@@ -206,7 +227,7 @@ GENERICSABLE_IMPLEMENTATION(NSString)
 {
     __block SDCommand *foundCommand = nil;
     [_supportedCommands enumerateObjectsUsingBlock:^(SDCommand *command, NSUInteger idx, BOOL *stop) {
-        if ([command.command isEqualToString:string])
+        if ([command.commandName isEqualToString:string])
         {
             foundCommand = command;
             *stop = YES;
@@ -218,9 +239,19 @@ GENERICSABLE_IMPLEMENTATION(NSString)
 
 #pragma mark - public methods
 
+- (NSString *)currentWorkingPath
+{
+    return [[NSFileManager defaultManager] currentDirectoryPath];
+}
+
 - (NSArray *)rawArguments
 {
     return [NSArray arrayWithArray:_rawArguments];
+}
+
+- (NSArray<SDCommand> *)supportedCommands
+{
+    return (NSArray<SDCommand> *)[NSArray arrayWithArray:_supportedCommands];
 }
 
 - (void)addSupportedCommands:(NSArray<SDCommand> *)commands
@@ -237,7 +268,10 @@ GENERICSABLE_IMPLEMENTATION(NSString)
         if ([self.command checkValidityOfCommand])
             [self.command performCommand];
         else
+        {
+            [self.command printHelp];
             exit(1);
+        }
     }
 }
 

@@ -23,10 +23,10 @@
              ];
 }
 
-- (NSSet<NSString> *)supportedFlags
+- (NSSet<NSString> *)supportedOptions
 {
     // -help and -v are default and the only things this guy needs.
-    return [super supportedFlags];
+    return [super supportedOptions];
 }
 
 - (BOOL)checkValidityOfCommand
@@ -41,17 +41,32 @@
     if (isValidKeyName && path)
         result = YES;
     
-    if (!result)
-    {
-        sdprint(@"usage: modulo set <key name> <value>\n\n");
-        sdprint(@"valid key names are: %@\n", [self supportedKeyNames]);
-    }
+    if ([self hasOption:@"help"])
+        result = YES;
     
     return result;
 }
 
 - (void)performCommand
 {
+    if ([self hasOption:@"help"])
+    {
+        [self printHelp];
+        return;
+    }
 }
+
+- (void)printHelp
+{
+    sdprintln(@"usage: modulo set <key name> <value> [--silent] [--verbose]");
+    sdprintln(@"       modulo set --help\n");
+    sdprintln(@"valid key names are: %@\n", [self supportedKeyNames]);
+}
+
+- (NSString *)helpDescription
+{
+    return @"Sets a specified key/value pair in modulo.spec";
+}
+
 
 @end

@@ -14,14 +14,21 @@
 
 - (BOOL)verbose
 {
-    if ([self hasFlag:@"v"])
+    if ([self hasOption:@"verbose"])
         return YES;
     return NO;
 }
 
-- (NSSet<NSString> *)supportedFlags
+- (BOOL)silent
 {
-    return (NSSet<NSString> *)[NSSet setWithObjects:@"help", @"v", nil];
+    if ([self hasOption:@"silent"])
+        return YES;
+    return NO;
+}
+
+- (NSSet<NSString> *)supportedOptions
+{
+    return (NSSet<NSString> *)[NSSet setWithObjects:@"help", @"verbose", @"silent", nil];
 }
 
 - (BOOL)checkValidityOfCommand
