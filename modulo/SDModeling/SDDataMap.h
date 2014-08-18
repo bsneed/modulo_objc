@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SDMacros.h"
+#import "ObjectiveCGenerics.h"
 
 /**
  Objects that support this protocol may be used to generate sub-objects, such as

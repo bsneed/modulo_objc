@@ -12,15 +12,11 @@
 
 - (NSArray *)supportedKeyNames
 {
-    return @[@"dependencies",
-             @"otherDependencies",
-             @"name",
-             @"projectUrl",
-             @"licenseUrl",
-             @"moduleUrl",
-             @"dependenciesPath",
-             @"sourcePaths"
-             ];
+    return @[@"name",
+             @"projectURL",
+             @"licenseURL",
+             @"moduleURL",
+             @"dependenciesPath"];
 }
 
 - (NSSet<NSString> *)supportedOptions
@@ -36,9 +32,9 @@
     NSString *keyName = [self argumentAtIndex:0];
     BOOL isValidKeyName = [[self supportedKeyNames] containsObject:keyName];
     
-    NSString *path = [self argumentAtIndex:1];
+    NSString *value = [self argumentAtIndex:1];
     
-    if (isValidKeyName && path)
+    if (isValidKeyName && value)
         result = YES;
     
     if ([self hasOption:@"help"])
@@ -53,6 +49,30 @@
     {
         [self printHelp];
         return;
+    }
+    
+    NSString *keyName = [self argumentAtIndex:0];
+    BOOL isValidKeyName = [[self supportedKeyNames] containsObject:keyName];
+    
+    NSString *value = [self argumentAtIndex:1];
+
+    if (keyName && isValidKeyName && value)
+    {
+        [[MODSpecModel sharedInstance] setValue:value forKey:keyName];
+        if ([[MODSpecModel sharedInstance] saveSpecification])
+        {
+            sdprintln(@"Updated key %@ in modulo.spec in %@", keyName, [SDCommandLineParser sharedInstance].startingWorkingPath);
+        }
+        else
+        {
+            sdprintln(@"Unable to update modulo spec in %@.  Please check that write permissions are enabled.", [SDCommandLineParser sharedInstance].startingWorkingPath);
+            exit(1);
+        }
+    }
+    else
+    {
+        sdprintln(@"An unknown error occurred.");
+        exit(1);
     }
 }
 

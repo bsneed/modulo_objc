@@ -7,6 +7,7 @@
 //
 
 #import "SDCommandLineParser.h"
+#import "MODSpecModel.h"
 
 @interface MODCommand : SDCommand
 

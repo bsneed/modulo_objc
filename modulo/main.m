@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SDCommandLineParser.h"
+#import "MODInitCommand.h"
 #import "MODSetCommand.h"
 #import "MODVersionCommand.h"
 #import "MODHelpCommand.h"
@@ -19,7 +20,7 @@
  
     *--help - shows help
     *--version - shows the version info
-    init - initializes the path for use with modulo
+    ~init - initializes the path for use with modulo
     validate - validates dependencies, overall setup, etc
     add - adds a dependency
     rm - removes a dependency
@@ -32,13 +33,14 @@
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        
+        MODInitCommand *initCommand = [MODInitCommand commandWithName:@"init" primary:YES];
         MODSetCommand *setCommand = [MODSetCommand commandWithName:@"set" primary:YES];
         MODVersionCommand *versionCommand = [MODVersionCommand commandWithName:@"--version" primary:NO];
         MODHelpCommand *helpCommand = [MODHelpCommand commandWithName:@"--help" primary:NO];
         
         SDCommandLineParser *commandLine = [SDCommandLineParser sharedInstance];
-        [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[setCommand,
+        [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[initCommand,
+                                                                  setCommand,
                                                                   versionCommand,
                                                                   helpCommand]];
         [commandLine processCommandLine];

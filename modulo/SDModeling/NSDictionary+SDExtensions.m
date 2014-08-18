@@ -225,7 +225,7 @@
 - (NSString *)JSONStringRepresentation
 {
     NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:self options:0 error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted error:&error];
     if (error)
         SDLog(@"error converting event into JSON: %@", error);
     NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
