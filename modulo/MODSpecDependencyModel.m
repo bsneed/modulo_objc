@@ -16,7 +16,9 @@ GENERICSABLE_IMPLEMENTATION(MODSpecDependencyModel)
  @property (nonatomic, copy) NSString *name;
  @property (nonatomic, copy) NSString *moduleURL;
  @property (nonatomic, copy) NSString *projectURL;
- @property (nonatomic, copy) NSString *commitHash;
+ @property (nonatomic, copy) NSString *localPath;
+ @property (nonatomic, copy) NSString *addedAutomatically;
+ @property (nonatomic, copy) NSArray<NSString> *owningDependencies;
  */
 
 - (NSDictionary *)mappingDictionaryForData:(id)data
@@ -24,7 +26,11 @@ GENERICSABLE_IMPLEMENTATION(MODSpecDependencyModel)
     return @{@"name": sdmo_key(self.name),
              @"moduleURL": sdmo_key(self.moduleURL),
              @"projectURL": sdmo_key(self.projectURL),
-             @"commitHash": sdmo_key(self.commitHash)};
+             @"localPath": sdmo_key(self.localPath),
+             @"sourcePath": sdmo_key(self.sourcePath),
+             @"addedAutomatically": sdmo_key(self.addedAutomatically),
+             @"owningDependencies": sdmo_key(self.owningDependencies)
+             };
 }
 
 - (NSDictionary *)exportMappingDictionary
@@ -32,7 +38,16 @@ GENERICSABLE_IMPLEMENTATION(MODSpecDependencyModel)
     return @{@"name": @"(NSString)name",
              @"moduleURL": @"(NSString)moduleURL",
              @"projectURL": @"(NSString)projectURL",
-             @"commitHash": @"(NSString)commitHash"};
+             @"localPath": @"(NSString)localPath",
+             @"sourcePath": @"(NSString)sourcePath",
+             @"addedAutomatically": @"(NSNumber)addedAutomatically",
+             @"owningDependencies": @"(NSArray<NSString>)owningDependencies"
+             };
+}
+
+- (BOOL)validModel
+{
+    return YES;
 }
 
 @end

@@ -273,6 +273,13 @@ GENERICSABLE_IMPLEMENTATION(SDCommand)
             exit(1);
         }
     }
+    else
+    {
+        if (self.helpCommand)
+            [self.helpCommand printHelp];
+        else
+            sdprintln(@"Unknown, invalid or no command given.");
+    }
 }
 
 @end
@@ -282,7 +289,26 @@ GENERICSABLE_IMPLEMENTATION(SDCommand)
 static void sd_printf_worker(FILE *file, NSString *format, va_list arguments)
 {
     NSString *msg = [[NSString alloc] initWithFormat:format arguments:arguments];
+    
+    // when given a format such as @"%@\n" and arguments is nil, msg = @"(null)\n".
+    // Such dumb.  Much wow.
+    
+    // lets skip printing out that junk.
+    if ([msg rangeOfString:@"(null)"].location == 0)
+        return;
+    
     fprintf(file, "%s", [msg UTF8String]);
+}
+
+void sderror(NSString *format, ...)
+{
+    va_list arguments;
+    va_start(arguments, format);
+    format = [NSString stringWithFormat:@"error: %@\n", format];
+    sd_printf_worker(stdout, format, arguments);
+    va_end(arguments);
+    
+    exit(1);
 }
 
 void sdprint(NSString *format, ...)

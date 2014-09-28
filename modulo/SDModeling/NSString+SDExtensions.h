@@ -143,4 +143,6 @@ GENERICSABLE(NSString)
 /** Returns the inverse of #isEmpty:. */
 + (BOOL) isNotEmpty:(NSString *)string;
 
+- (NSString*)stringWithPathRelativeTo:(NSString*)anchorPath;
+
 @end

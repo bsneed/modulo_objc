@@ -28,4 +28,11 @@
 
 - (BOOL)saveSpecification;
 
+- (BOOL)isInitialized;
+- (BOOL)hasDependencyPathSet;
+
+- (void)addDependency:(MODSpecDependencyModel *)dependency;
+- (BOOL)dependencyExistsNamed:(NSString *)name;
+- (BOOL)removeDependencyNamed:(NSString *)name;
+
 @end

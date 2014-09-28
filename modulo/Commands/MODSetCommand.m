@@ -45,6 +45,8 @@
 
 - (void)performCommand
 {
+    [super performCommand];
+    
     if ([self hasOption:@"help"])
     {
         [self printHelp];
@@ -80,7 +82,8 @@
 {
     sdprintln(@"usage: modulo set <key name> <value> [--silent] [--verbose]");
     sdprintln(@"       modulo set --help\n");
-    sdprintln(@"valid key names are: %@\n", [self supportedKeyNames]);
+    sdprintln(@"Path values should be expressed in relative form.\n");
+    sdprintln(@"Valid key names are: %@\n", [self supportedKeyNames]);
 }
 
 - (NSString *)helpDescription

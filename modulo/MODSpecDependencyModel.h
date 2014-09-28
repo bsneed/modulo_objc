@@ -16,6 +16,9 @@ GENERICSABLE(MODSpecDependencyModel)
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *moduleURL;
 @property (nonatomic, copy) NSString *projectURL;
-@property (nonatomic, copy) NSString *commitHash;
+@property (nonatomic, copy) NSString *localPath;
+@property (nonatomic, copy) NSString *sourcePath;
+@property (nonatomic, copy) NSString *addedAutomatically;
+@property (nonatomic, copy) NSArray *owningDependencies;
 
 @end

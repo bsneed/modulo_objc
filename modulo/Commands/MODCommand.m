@@ -19,13 +19,6 @@
     return NO;
 }
 
-- (BOOL)silent
-{
-    if ([self hasOption:@"silent"])
-        return YES;
-    return NO;
-}
-
 - (NSSet<NSString> *)supportedOptions
 {
     return (NSSet<NSString> *)[NSSet setWithObjects:@"help", @"verbose", @"silent", nil];
@@ -38,6 +31,36 @@
 
 - (void)performCommand
 {
+    if (![MODSpecModel sharedInstance].isInitialized)
+        sderror(@"This directory has not been initialized for modulo.");
 }
+
+- (NSInteger)runCommand:(NSString *)command parseBlock:(MODCommandParseBlock)parseBlock
+{
+    if (parseBlock)
+        command = [command stringByAppendingString:@" 2> modulo_temp.txt"];
+    
+    if (self.verbose)
+        sdprintln(@"Running: %@", command);
+    
+    NSInteger status = system([command UTF8String]);
+    
+    if (parseBlock)
+    {
+        NSString *outputString = [NSString stringWithContentsOfFile:@"modulo_temp.txt" encoding:NSUTF8StringEncoding error:nil];
+        status = parseBlock(status, outputString);
+        if (status != 0)
+            sdprintln(outputString);
+    }
+    
+    return status;
+}
+
+- (NSInteger)runCommand:(NSString *)command
+{
+    return [self runCommand:command parseBlock:nil];
+}
+
+
 
 @end

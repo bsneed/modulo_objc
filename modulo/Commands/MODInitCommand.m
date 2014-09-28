@@ -19,6 +19,7 @@
 {
     BOOL result = NO;
 
+    // they just want help, bestow it upon them.
     if ([self hasOption:@"help"])
         result = YES;
     else
@@ -40,10 +41,13 @@
     }
 
     [MODSpecModel sharedInstance].name = [[SDCommandLineParser sharedInstance].startingWorkingPath lastPathComponent];
+    [MODSpecModel sharedInstance].dependenciesPath = @"dependencies";
+    
     if ([[MODSpecModel sharedInstance] saveSpecification])
         sdprintln(@"Initialized modulo spec in %@", [SDCommandLineParser sharedInstance].startingWorkingPath);
     else
     {
+        // TODO: maybe check for other things here so we can be more specific in the error we report?
         sdprintln(@"Unable to initialize modulo spec in %@.  Please check that write permissions are enabled.", [SDCommandLineParser sharedInstance].startingWorkingPath);
         exit(1);
     }

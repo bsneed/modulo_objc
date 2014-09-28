@@ -445,6 +445,44 @@ GENERICSABLE_IMPLEMENTATION(NSString)
     return (string && [string length] > 0);
 }
 
+- (NSString*)stringWithPathRelativeTo:(NSString*)anchorPath
+{
+    NSArray *pathComponents = [self pathComponents];
+    NSArray *anchorComponents = [anchorPath pathComponents];
+    
+    NSUInteger componentsInCommon = MIN([pathComponents count], [anchorComponents count]);
+    for (NSUInteger i = 0, n = componentsInCommon; i < n; i++)
+    {
+        if (![[pathComponents objectAtIndex:i] isEqualToString:[anchorComponents objectAtIndex:i]])
+        {
+            componentsInCommon = i;
+            break;
+        }
+    }
+    
+    NSUInteger numberOfParentComponents = [anchorComponents count] - componentsInCommon;
+    NSUInteger numberOfPathComponents = [pathComponents count] - componentsInCommon;
+    
+    NSMutableArray *relativeComponents = [NSMutableArray arrayWithCapacity:numberOfParentComponents + numberOfPathComponents];
+    for (NSInteger i = 0; i < numberOfParentComponents; i++)
+    {
+        [relativeComponents addObject:@".."];
+    }
+    
+    [relativeComponents addObjectsFromArray:[pathComponents subarrayWithRange:NSMakeRange(componentsInCommon, numberOfPathComponents)]];
+    NSString *result = [NSString pathWithComponents:relativeComponents];
+    
+    // remove any leading ./ and trailing /
+    NSRange leadingRange = [result rangeOfString:@"./"];
+    if (leadingRange.location == 0)
+        result = [result stringByReplacingOccurrencesOfString:@"./" withString:@"" options:0 range:leadingRange];
+
+    NSRange trailingRange = [result rangeOfString:@"/"];
+    if (trailingRange.location == result.length - 1)
+        result = [result stringByReplacingOccurrencesOfString:@"/" withString:@"" options:0 range:trailingRange];
+
+    return result;
+}
 
 @end
 

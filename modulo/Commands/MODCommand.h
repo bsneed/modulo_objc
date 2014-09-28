@@ -9,9 +9,13 @@
 #import "SDCommandLineParser.h"
 #import "MODSpecModel.h"
 
+typedef NSInteger (^MODCommandParseBlock)(NSInteger returnStatus, NSString *outputString);
+
 @interface MODCommand : SDCommand
 
 @property (nonatomic, readonly) BOOL verbose;
-@property (nonatomic, readonly) BOOL silent;
+
+- (NSInteger)runCommand:(NSString *)command parseBlock:(MODCommandParseBlock)parseBlock;
+- (NSInteger)runCommand:(NSString *)command;
 
 @end

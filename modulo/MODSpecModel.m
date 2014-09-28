@@ -108,15 +108,87 @@
     {
         NSString *filePath = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.spec"];
         NSString *specString = [specDict JSONStringRepresentation];
+        NSData *fileData = [specString dataUsingEncoding:NSUTF8StringEncoding];
         
-        // TODO: handle this error.
-        NSError *error = nil;
-        [specString writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+        if (![fileData writeToFile:filePath atomically:YES])
+        {
+            sdprintln(@"There was a problem writing modulo.spec to %@", filePath);
+            exit(1);
+        }
+        
+        NSString *filePath2 = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.dict"];
+        [specDict writeToFile:filePath2 atomically:YES];
         
         result = YES;
     }
     
     return result;
 }
+
+- (BOOL)isInitialized
+{
+    BOOL result = NO;
+    
+    if (self.name.length > 0)
+        result = YES;
+    
+    return result;    
+}
+
+- (BOOL)hasDependencyPathSet
+{
+    BOOL result = NO;
+    
+    if (self.dependenciesPath.length > 0)
+        result = YES;
+    
+    return result;
+}
+
+- (void)addDependency:(MODSpecDependencyModel *)dependency
+{
+    NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
+    [dependencies addObject:dependency];
+    self.dependencies = (NSArray<MODSpecDependencyModel> *)[NSArray arrayWithArray:dependencies];
+}
+
+- (BOOL)dependencyExistsNamed:(NSString *)name
+{
+    BOOL result = NO;
+    for (MODSpecDependencyModel *item in self.dependencies)
+    {
+        if ([item.name isEqualToString:name])
+        {
+            result = YES;
+            break;
+        }
+    }
+    return result;    
+}
+
+- (BOOL)removeDependencyNamed:(NSString *)name
+{
+    NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
+    BOOL result = NO;
+    MODSpecDependencyModel *itemToRemove = nil;
+    for (MODSpecDependencyModel *item in dependencies)
+    {
+        if ([item.name isEqualToString:name])
+        {
+            result = YES;
+            itemToRemove = item;
+            break;
+        }
+    }
+    
+    if (result)
+    {
+        [dependencies removeObject:itemToRemove];
+        self.dependencies = (NSArray<MODSpecDependencyModel> *)[NSArray arrayWithArray:dependencies];
+    }
+    
+    return result;
+}
+
 
 @end

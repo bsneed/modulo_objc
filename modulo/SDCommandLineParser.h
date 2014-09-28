@@ -32,6 +32,11 @@ GENERICSABLE(SDCommand)
 - (BOOL)hasOption:(NSString *)option;
 - (NSString *)argumentAtIndex:(NSUInteger)index;
 
+// useful when running your own commands internally.
+- (void)addCommandArgument:(NSString *)argument;
+- (void)addCommandOption:(NSString *)option;
+
+
 // override this stuff below here.
 
 @property (nonatomic, readonly) NSSet<NSString> *supportedOptions;
@@ -66,6 +71,8 @@ GENERICSABLE(SDCommand)
 @property (nonatomic, readonly) NSString *currentWorkingPath;
 @property (nonatomic, readonly) NSString *startingWorkingPath;
 
+@property (nonatomic, readwrite, strong) SDCommand *helpCommand;
+
 + (instancetype)sharedInstance;
 
 - (void)addSupportedCommands:(NSArray<SDCommand> *)commands;
@@ -75,6 +82,8 @@ GENERICSABLE(SDCommand)
 @end
 
 #pragma mark - Print helpers
+
+extern void sderror(NSString *format, ...);
 
 extern void sdprint(NSString *format, ...);
 extern void sdprintln(NSString *format, ...);

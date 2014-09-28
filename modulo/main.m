@@ -12,6 +12,8 @@
 #import "MODSetCommand.h"
 #import "MODVersionCommand.h"
 #import "MODHelpCommand.h"
+#import "MODAddCommand.h"
+#import "MODRemoveCommand.h"
 
 /*
  
@@ -37,15 +39,23 @@ int main(int argc, const char * argv[]) {
         MODSetCommand *setCommand = [MODSetCommand commandWithName:@"set" primary:YES];
         MODVersionCommand *versionCommand = [MODVersionCommand commandWithName:@"--version" primary:NO];
         MODHelpCommand *helpCommand = [MODHelpCommand commandWithName:@"--help" primary:NO];
+        MODAddCommand *addCommand = [MODAddCommand commandWithName:@"add" primary:YES];
+        MODRemoveCommand *removeCommand = [MODRemoveCommand commandWithName:@"remove" primary:YES];
         
         SDCommandLineParser *commandLine = [SDCommandLineParser sharedInstance];
         [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[initCommand,
                                                                   setCommand,
                                                                   versionCommand,
-                                                                  helpCommand]];
+                                                                  helpCommand,
+                                                                  addCommand,
+                                                                  removeCommand]];
+        
+        // we wanna print this if we don't get any valid commands at all.
+        commandLine.helpCommand = helpCommand;
+        
         [commandLine processCommandLine];
 
-        sdprint(@"%@", commandLine.command);
+        //sdprintln(@"%@", commandLine.command);
     }
     
     return 0;
