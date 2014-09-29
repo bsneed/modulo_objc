@@ -61,6 +61,7 @@
         branch = [self argumentAtIndex:1];
 
     MODProcessor *processor = [MODProcessor processor];
+    processor.verbose = self.verbose;
     [processor addDependencyNamed:dependencyName moduleURL:moduleURL branch:branch];
     
     // filter out existing deps.

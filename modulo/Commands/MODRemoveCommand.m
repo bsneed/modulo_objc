@@ -41,6 +41,7 @@
     if ([[MODSpecModel sharedInstance] dependencyExistsNamed:dependencyName])
     {
         MODProcessor *processor = [MODProcessor processor];
+        processor.verbose = self.verbose;
         [processor removeDependencyNamed:dependencyName];
         
         [[MODSpecModel sharedInstance] saveSpecification];

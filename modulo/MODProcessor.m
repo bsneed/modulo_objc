@@ -65,7 +65,7 @@
                     // this one doesn't have any.  so nuke it.
                     NSString *localPath = [dependencyPath stringByAppendingPathComponent:item.name];
                     [self rewindDependencyNamed:item.name localPath:localPath];
-                    sdprintln(@"Removed %@, used by %@", item.name, itemToRemove.name);
+                    sdprintln(@"Removed %@, used by %@.", item.name, itemToRemove.name);
                 }
                 else
                 {
@@ -79,7 +79,7 @@
             
             NSString *localPath = [dependencyPath stringByAppendingPathComponent:itemToRemove.name];
             [self rewindDependencyNamed:itemToRemove.name localPath:localPath];
-            sdprintln(@"Removed %@", itemToRemove.name);
+            sdprintln(@"Removed %@.", itemToRemove.name);
         }
         else
         {
