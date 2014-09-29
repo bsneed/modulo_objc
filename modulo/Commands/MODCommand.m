@@ -44,6 +44,7 @@
         sdprintln(@"Running: %@", command);
     
     NSInteger status = system([command UTF8String]);
+    //NSInteger status = 0;
     
     if (parseBlock)
     {

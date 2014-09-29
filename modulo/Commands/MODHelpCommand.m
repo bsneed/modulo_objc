@@ -92,4 +92,10 @@ static struct winsize __windowSize;
     [self performCommand];
 }
 
+- (NSString *)helpDescription
+{
+    return @"See help for modulo or a specific command.";
+}
+
+
 @end

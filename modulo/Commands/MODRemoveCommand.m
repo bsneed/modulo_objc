@@ -105,4 +105,10 @@
     }
 }
 
+- (NSString *)helpDescription
+{
+    return @"Removes the specified module as a dependency.";
+}
+
+
 @end

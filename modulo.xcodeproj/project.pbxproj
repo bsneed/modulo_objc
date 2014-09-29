@@ -22,9 +22,7 @@
 		CA9AB68E19A07C5500108B45 /* MODVersionCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68D19A07C5500108B45 /* MODVersionCommand.m */; };
 		CA9AB69219A080C400108B45 /* MODHelpCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB69119A080C400108B45 /* MODHelpCommand.m */; };
 		CAE0B81D19A1C1AF00E11FF8 /* MODSpecModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B81C19A1C1AF00E11FF8 /* MODSpecModel.m */; };
-		CAE0B82019A1C37400E11FF8 /* MODSpecDependencyModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B81F19A1C37400E11FF8 /* MODSpecDependencyModel.m */; };
 		CAE0B82319A1C39000E11FF8 /* MODSpecOtherDependencyModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82219A1C39000E11FF8 /* MODSpecOtherDependencyModel.m */; };
-		CAE0B82619A1C5B200E11FF8 /* MODSpecSourcesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82519A1C5B200E11FF8 /* MODSpecSourcesModel.m */; };
 		CAE0B82919A1C77100E11FF8 /* MODInitCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82819A1C77100E11FF8 /* MODInitCommand.m */; };
 		CAE0B82C19A269D500E11FF8 /* MODAddCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82B19A269D500E11FF8 /* MODAddCommand.m */; };
 /* End PBXBuildFile section */
@@ -78,12 +76,8 @@
 		CA9AB69119A080C400108B45 /* MODHelpCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODHelpCommand.m; sourceTree = "<group>"; };
 		CAE0B81B19A1C1AF00E11FF8 /* MODSpecModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSpecModel.h; sourceTree = "<group>"; };
 		CAE0B81C19A1C1AF00E11FF8 /* MODSpecModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODSpecModel.m; sourceTree = "<group>"; };
-		CAE0B81E19A1C37400E11FF8 /* MODSpecDependencyModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSpecDependencyModel.h; sourceTree = "<group>"; };
-		CAE0B81F19A1C37400E11FF8 /* MODSpecDependencyModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODSpecDependencyModel.m; sourceTree = "<group>"; };
 		CAE0B82119A1C39000E11FF8 /* MODSpecOtherDependencyModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSpecOtherDependencyModel.h; sourceTree = "<group>"; };
 		CAE0B82219A1C39000E11FF8 /* MODSpecOtherDependencyModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODSpecOtherDependencyModel.m; sourceTree = "<group>"; };
-		CAE0B82419A1C5B200E11FF8 /* MODSpecSourcesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSpecSourcesModel.h; sourceTree = "<group>"; };
-		CAE0B82519A1C5B200E11FF8 /* MODSpecSourcesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODSpecSourcesModel.m; sourceTree = "<group>"; };
 		CAE0B82719A1C77100E11FF8 /* MODInitCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODInitCommand.h; sourceTree = "<group>"; };
 		CAE0B82819A1C77100E11FF8 /* MODInitCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODInitCommand.m; sourceTree = "<group>"; };
 		CAE0B82A19A269D500E11FF8 /* MODAddCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODAddCommand.h; sourceTree = "<group>"; };
@@ -199,10 +193,6 @@
 			children = (
 				CAE0B81B19A1C1AF00E11FF8 /* MODSpecModel.h */,
 				CAE0B81C19A1C1AF00E11FF8 /* MODSpecModel.m */,
-				CAE0B82419A1C5B200E11FF8 /* MODSpecSourcesModel.h */,
-				CAE0B82519A1C5B200E11FF8 /* MODSpecSourcesModel.m */,
-				CAE0B81E19A1C37400E11FF8 /* MODSpecDependencyModel.h */,
-				CAE0B81F19A1C37400E11FF8 /* MODSpecDependencyModel.m */,
 				CAE0B82119A1C39000E11FF8 /* MODSpecOtherDependencyModel.h */,
 				CAE0B82219A1C39000E11FF8 /* MODSpecOtherDependencyModel.m */,
 			);
@@ -274,11 +264,9 @@
 				CA9AB68E19A07C5500108B45 /* MODVersionCommand.m in Sources */,
 				CA44AFF6199E79CB00AE1A15 /* main.m in Sources */,
 				CAE0B82319A1C39000E11FF8 /* MODSpecOtherDependencyModel.m in Sources */,
-				CAE0B82019A1C37400E11FF8 /* MODSpecDependencyModel.m in Sources */,
 				CA9AB672199F352000108B45 /* MODCommand.m in Sources */,
 				CA9AB69219A080C400108B45 /* MODHelpCommand.m in Sources */,
 				CA9AB68819A077DF00108B45 /* SDLog.m in Sources */,
-				CAE0B82619A1C5B200E11FF8 /* MODSpecSourcesModel.m in Sources */,
 				CA9AB67C19A0763D00108B45 /* SDModelObject.m in Sources */,
 				CA9AB67F19A0768100108B45 /* NSObject+SDExtensions.m in Sources */,
 				CA9AB68219A076CD00108B45 /* NSDictionary+SDExtensions.m in Sources */,

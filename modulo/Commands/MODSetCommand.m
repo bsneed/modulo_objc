@@ -45,7 +45,7 @@
 
 - (void)performCommand
 {
-    [super performCommand];
+    //[super performCommand];
     
     if ([self hasOption:@"help"])
     {
@@ -88,7 +88,7 @@
 
 - (NSString *)helpDescription
 {
-    return @"Sets a specified key/value pair in modulo.spec";
+    return @"Sets a specified key/value pair in modulo.spec.";
 }
 
 

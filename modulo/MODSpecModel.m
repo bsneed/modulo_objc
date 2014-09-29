@@ -10,20 +10,9 @@
 #import "SDCommandLineParser.h"
 #import "NSDictionary+SDExtensions.h"
 
-@implementation MODSpecModel
+GENERICSABLE_IMPLEMENTATION(MODSpecModel)
 
-/*
- @property (nonatomic, copy) NSString *name;
- @property (nonatomic, copy) NSString *projectURL;
- @property (nonatomic, copy) NSString *moduleURL;
- @property (nonatomic, copy) NSString *licenseURL;
- 
- @property (nonatomic, strong) NSArray<MODSpecSourceModel> *sources;
- 
- @property (nonatomic, copy) NSString *dependenciesPath;
- @property (nonatomic, strong) NSArray<MODSpecDependencyModel> *dependencies;
- @property (nonatomic, strong) NSArray<MODSpecOtherDependencyModel> *otherDependencies;
- */
+@implementation MODSpecModel
 
 - (NSDictionary *)mappingDictionaryForData:(id)data
 {
@@ -31,7 +20,10 @@
              @"projectURL": sdmo_key(self.projectURL),
              @"moduleURL": sdmo_key(self.moduleURL),
              @"licenseURL": sdmo_key(self.licenseURL),
-             @"sources": sdmo_key(self.sources),
+             @"library": sdmo_key(self.library),
+             @"sourcePath": sdmo_key(self.sourcePath),
+             @"localPath": sdmo_key(self.localPath),
+             @"initialBranch": sdmo_key(self.initialBranch),
              @"dependenciesPath": sdmo_key(self.dependenciesPath),
              @"dependencies": sdmo_key(self.dependencies),
              @"otherDependencies": sdmo_key(self.otherDependencies)};
@@ -43,7 +35,10 @@
              @"projectURL": @"(NSString)projectURL",
              @"moduleURL": @"(NSString)moduleURL",
              @"licenseURL": @"(NSString)licenseURL",
-             @"sources": @"(NSArray<NSDictionary>)sources",
+             @"library": @"(NSNumber)library",
+             @"sourcePath": @"(NSString)sourcePath",
+             @"localPath": @"(NSString)localPath",
+             @"initialBranch": @"(NSString)initialBranch",
              @"dependenciesPath": @"(NSString)dependenciesPath",
              @"dependencies": @"(NSArray<NSDictionary>)dependencies",
              @"otherDependencies": @"(NSArray<NSDictionary>)otherDependencies"};
@@ -63,16 +58,28 @@
     static MODSpecModel *__sharedInstance = nil;
     dispatch_once(&onceToken, ^{
         __sharedInstance = [[MODSpecModel alloc] init];
+        __sharedInstance.pathToModel = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.spec"];
+        [__sharedInstance loadSpecification];
     });
     
     return __sharedInstance;
+}
+
++ (instancetype)instanceFromPath:(NSString *)path
+{
+    if ([path rangeOfString:@"modulo.spec"].location == NSNotFound)
+        path = [path stringByAppendingPathComponent:@"modulo.spec"];
+    
+    MODSpecModel *specModel = [[MODSpecModel alloc] init];
+    specModel.pathToModel = path;
+    [specModel loadSpecification];
+    return specModel;
 }
 
 - (instancetype)init
 {
     if ((self = [super init]))
     {
-        [self loadSpecification];
     }
     
     return self;
@@ -80,7 +87,7 @@
 
 - (BOOL)loadSpecification
 {
-    NSString *filePath = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.spec"];
+    NSString *filePath = self.pathToModel;
     
     // TODO: handle this error.
     NSError *error = nil;
@@ -116,9 +123,6 @@
             exit(1);
         }
         
-        NSString *filePath2 = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.dict"];
-        [specDict writeToFile:filePath2 atomically:YES];
-        
         result = YES;
     }
     
@@ -145,17 +149,17 @@
     return result;
 }
 
-- (void)addDependency:(MODSpecDependencyModel *)dependency
+- (void)addDependency:(MODSpecModel *)dependency
 {
     NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
     [dependencies addObject:dependency];
-    self.dependencies = (NSArray<MODSpecDependencyModel> *)[NSArray arrayWithArray:dependencies];
+    self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:dependencies];
 }
 
 - (BOOL)dependencyExistsNamed:(NSString *)name
 {
     BOOL result = NO;
-    for (MODSpecDependencyModel *item in self.dependencies)
+    for (MODSpecModel *item in self.dependencies)
     {
         if ([item.name isEqualToString:name])
         {
@@ -170,8 +174,8 @@
 {
     NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
     BOOL result = NO;
-    MODSpecDependencyModel *itemToRemove = nil;
-    for (MODSpecDependencyModel *item in dependencies)
+    MODSpecModel *itemToRemove = nil;
+    for (MODSpecModel *item in dependencies)
     {
         if ([item.name isEqualToString:name])
         {
@@ -184,7 +188,7 @@
     if (result)
     {
         [dependencies removeObject:itemToRemove];
-        self.dependencies = (NSArray<MODSpecDependencyModel> *)[NSArray arrayWithArray:dependencies];
+        self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:dependencies];
     }
     
     return result;

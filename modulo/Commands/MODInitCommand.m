@@ -12,7 +12,11 @@
 
 - (NSSet<NSString> *)supportedOptions
 {
-    return [super supportedOptions];
+    NSSet *superSet = [super supportedOptions];
+    NSMutableSet *newSet = [NSMutableSet setWithSet:superSet];
+    [newSet addObjectsFromArray:@[@"library"]];
+    
+    return (NSSet<NSString> *)[NSSet setWithSet:newSet];
 }
 
 - (BOOL)checkValidityOfCommand
@@ -41,7 +45,18 @@
     }
 
     [MODSpecModel sharedInstance].name = [[SDCommandLineParser sharedInstance].startingWorkingPath lastPathComponent];
-    [MODSpecModel sharedInstance].dependenciesPath = @"dependencies";
+    if ([self hasOption:@"library"])
+    {
+        [MODSpecModel sharedInstance].dependenciesPath = @"../";
+        [MODSpecModel sharedInstance].sourcePath = [MODSpecModel sharedInstance].name;
+        [MODSpecModel sharedInstance].library = YES;
+        [MODSpecModel sharedInstance].initialBranch = @"master";
+    }
+    else
+    {
+        [MODSpecModel sharedInstance].dependenciesPath = @"dependencies";
+        [MODSpecModel sharedInstance].library = NO;
+    }
     
     if ([[MODSpecModel sharedInstance] saveSpecification])
         sdprintln(@"Initialized modulo spec in %@", [SDCommandLineParser sharedInstance].startingWorkingPath);
@@ -61,9 +76,15 @@
     }
     else
     {
-        sdprintln(@"usage: modulo init [--verbose] [--silent]");
+        sdprintln(@"usage: modulo init [--library] [--verbose] [--silent]");
         sdprintln(@"       modulo init --help");
     }
 }
+
+- (NSString *)helpDescription
+{
+    return @"Initializes modulo for use.";
+}
+
 
 @end
