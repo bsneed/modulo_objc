@@ -7,6 +7,7 @@
 //
 
 #import "MODRemoveCommand.h"
+#import "MODProcessor.h"
 
 @implementation MODRemoveCommand
 
@@ -36,60 +37,18 @@
         return;
     }
     
-    // do they have a dependency path set?
-    NSString *dependenciesPath = [MODSpecModel sharedInstance].dependenciesPath;
-    if (dependenciesPath.length == 0)
-        sderror(@"The dependenciesPath value has not been set.\nUse: modulo set dependenciesPath <relative path>");
-    
-    // is that dependency path actually valid?
-    NSString *dependenciesFullPath = [[SDCommandLineParser sharedInstance].currentWorkingPath stringByAppendingPathComponent:dependenciesPath];
-    BOOL isDirectory = NO;
-    BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:dependenciesFullPath isDirectory:&isDirectory];
-    
-    if (pathExists && !isDirectory)
-        sderror(@"The path %@ exists and isn't a directory.");
-    
-    if (!pathExists || !isDirectory)
+    NSString *dependencyName = [self argumentAtIndex:0];
+    if ([[MODSpecModel sharedInstance] dependencyExistsNamed:dependencyName])
     {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:dependenciesFullPath withIntermediateDirectories:YES attributes:nil error:&error];
-        if (error)
-            sderror(@"There was a problem creating %@", dependenciesPath);
+        MODProcessor *processor = [MODProcessor processor];
+        [processor removeDependencyNamed:dependencyName];
+        
+        [[MODSpecModel sharedInstance] saveSpecification];
     }
-    
-    // setup path and name
-    
-    NSString *dependencyName = [self argumentAtIndex:0].lastPathComponent;
-    dependencyName = [dependencyName stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@".%@", dependencyName.pathExtension] withString:@""];
-    
-    if (![[MODSpecModel sharedInstance] dependencyExistsNamed:dependencyName])
-        sderror(@"No dependency found named %@.");
-    
-    NSString *dependencyLocalPath = [[dependenciesFullPath stringByAppendingPathComponent:dependencyName] stringWithPathRelativeTo:[SDCommandLineParser sharedInstance].startingWorkingPath];
-
-    // remove all teh tings!
-    
-    NSInteger status = 0;
-    
-    NSString *removeCommand = [NSString stringWithFormat:@"git submodule deinit -f %@", dependencyLocalPath];
-    status = [self runCommand:removeCommand];
-    if (status != 0)
-        sderror(@"No dependency found named %@ in git.", dependencyName);
-    
-    // remove from spec model
-    [[MODSpecModel sharedInstance] removeDependencyNamed:dependencyName];
-    [[MODSpecModel sharedInstance] saveSpecification];
-
-    NSString *cleanupCommand = [NSString stringWithFormat:@"git rm -f -r --cached %@ 2> /dev/null", dependencyLocalPath];
-    [self runCommand:cleanupCommand];
-    
-    NSString *rmCommand = [NSString stringWithFormat:@"rm -rf %@ 2> /dev/null", dependencyLocalPath];
-    [self runCommand:rmCommand];
-    
-    NSString *rmGitCommand = [NSString stringWithFormat:@"rm -rf .git/modules/%@ 2> /dev/null", dependencyLocalPath];
-    [self runCommand:rmGitCommand];
-    
-    // enumerate sub dependencies
+    else
+    {
+        sderror(@"No dependency exists named %@", dependencyName);
+    }
 }
 
 - (void)printHelp

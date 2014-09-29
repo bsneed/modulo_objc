@@ -15,7 +15,4 @@ typedef NSInteger (^MODCommandParseBlock)(NSInteger returnStatus, NSString *outp
 
 @property (nonatomic, readonly) BOOL verbose;
 
-- (NSInteger)runCommand:(NSString *)command parseBlock:(MODCommandParseBlock)parseBlock;
-- (NSInteger)runCommand:(NSString *)command;
-
 @end

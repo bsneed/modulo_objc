@@ -40,6 +40,9 @@ GENERICSABLE(MODSpecModel)
 
 - (void)addDependency:(MODSpecModel *)dependency;
 - (BOOL)dependencyExistsNamed:(NSString *)name;
+- (MODSpecModel *)dependencyNamed:(NSString *)name;
+- (NSArray *)dependenciesThatDependOn:(NSString *)name;
+- (NSArray *)dependenciesThatDependOn:(NSString *)name excluding:(NSString *)exclusionName;
 - (BOOL)removeDependencyNamed:(NSString *)name;
 
 @end

@@ -170,6 +170,20 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return result;    
 }
 
+- (MODSpecModel *)dependencyNamed:(NSString *)name
+{
+    MODSpecModel *result = nil;
+    for (MODSpecModel *item in self.dependencies)
+    {
+        if ([item.name isEqualToString:name])
+        {
+            result = item;
+            break;
+        }
+    }
+    return result;
+}
+
 - (BOOL)removeDependencyNamed:(NSString *)name
 {
     NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
@@ -194,5 +208,43 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return result;
 }
 
+- (NSArray *)dependenciesThatDependOn:(NSString *)name;
+{
+    NSMutableArray *dependents = [NSMutableArray array];
+    
+    // dependencies are arranged somewhat flat when stored, so we really only need to look at the first level deep.
+    
+    for (MODSpecModel *item in self.dependencies)
+    {
+        for (MODSpecModel *subItem in item.dependencies)
+        {
+            if ([subItem.name isEqualToString:name])
+                [dependents addObject:item];
+        }
+    }
+    
+    return [NSArray arrayWithArray:dependents];
+}
+
+- (NSArray *)dependenciesThatDependOn:(NSString *)name excluding:(NSString *)exclusionName
+{
+    NSMutableArray *dependents = [NSMutableArray array];
+    
+    // dependencies are arranged somewhat flat when stored, so we really only need to look at the first level deep.
+    
+    for (MODSpecModel *item in self.dependencies)
+    {
+        if ([item.name isEqualToString:exclusionName])
+            continue;
+        
+        for (MODSpecModel *subItem in item.dependencies)
+        {
+            if ([subItem.name isEqualToString:name])
+                [dependents addObject:item];
+        }
+    }
+    
+    return [NSArray arrayWithArray:dependents];
+}
 
 @end

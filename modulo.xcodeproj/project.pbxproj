@@ -10,6 +10,8 @@
 		CA44AFF6199E79CB00AE1A15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFF5199E79CB00AE1A15 /* main.m */; };
 		CA44AFFE199E7B0300AE1A15 /* SDCommandLineParser.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */; };
 		CA6C005F19D7456400803D48 /* MODRemoveCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6C005E19D7456400803D48 /* MODRemoveCommand.m */; };
+		CA6C006319D9D27D00803D48 /* modulo in CopyFiles */ = {isa = PBXBuildFile; fileRef = CA44AFF2199E79CB00AE1A15 /* modulo */; };
+		CA6C006619D9DA6B00803D48 /* MODProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6C006519D9DA6B00803D48 /* MODProcessor.m */; };
 		CA9AB672199F352000108B45 /* MODCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB671199F352000108B45 /* MODCommand.m */; };
 		CA9AB675199F43F100108B45 /* MODSetCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB674199F43F100108B45 /* MODSetCommand.m */; };
 		CA9AB67B19A0763D00108B45 /* SDDataMap.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB67819A0763D00108B45 /* SDDataMap.m */; };
@@ -30,12 +32,13 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		CA44AFF0199E79CB00AE1A15 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			buildActionMask = 12;
+			dstPath = "~";
 			dstSubfolderSpec = 0;
 			files = (
+				CA6C006319D9D27D00803D48 /* modulo in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -51,6 +54,8 @@
 		CA44B005199E84AB00AE1A15 /* SDMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDMacros.h; sourceTree = "<group>"; };
 		CA6C005D19D7456400803D48 /* MODRemoveCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODRemoveCommand.h; sourceTree = "<group>"; };
 		CA6C005E19D7456400803D48 /* MODRemoveCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODRemoveCommand.m; sourceTree = "<group>"; };
+		CA6C006419D9DA6B00803D48 /* MODProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODProcessor.h; sourceTree = "<group>"; };
+		CA6C006519D9DA6B00803D48 /* MODProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODProcessor.m; sourceTree = "<group>"; };
 		CA9AB670199F352000108B45 /* MODCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODCommand.h; sourceTree = "<group>"; };
 		CA9AB671199F352000108B45 /* MODCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODCommand.m; sourceTree = "<group>"; };
 		CA9AB673199F43F100108B45 /* MODSetCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODSetCommand.h; sourceTree = "<group>"; };
@@ -123,6 +128,8 @@
 				CA9AB68F19A07DFA00108B45 /* version.h */,
 				CA44AFFC199E7B0300AE1A15 /* SDCommandLineParser.h */,
 				CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */,
+				CA6C006419D9DA6B00803D48 /* MODProcessor.h */,
+				CA6C006519D9DA6B00803D48 /* MODProcessor.m */,
 			);
 			path = modulo;
 			sourceTree = "<group>";
@@ -258,6 +265,7 @@
 				CA6C005F19D7456400803D48 /* MODRemoveCommand.m in Sources */,
 				CA9AB67B19A0763D00108B45 /* SDDataMap.m in Sources */,
 				CA44AFFE199E7B0300AE1A15 /* SDCommandLineParser.m in Sources */,
+				CA6C006619D9DA6B00803D48 /* MODProcessor.m in Sources */,
 				CAE0B82C19A269D500E11FF8 /* MODAddCommand.m in Sources */,
 				CAE0B82919A1C77100E11FF8 /* MODInitCommand.m in Sources */,
 				CA9AB675199F43F100108B45 /* MODSetCommand.m in Sources */,
