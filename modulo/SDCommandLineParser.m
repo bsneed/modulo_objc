@@ -304,7 +304,10 @@ void sderror(NSString *format, ...)
 {
     va_list arguments;
     va_start(arguments, format);
-    format = [NSString stringWithFormat:@"error: %@\n", format];
+    if (format.length > 0)
+        format = [NSString stringWithFormat:@"error: %@\n", format];
+    else
+        format = @"\n";
     sd_printf_worker(stdout, format, arguments);
     va_end(arguments);
     

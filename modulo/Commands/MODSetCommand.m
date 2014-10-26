@@ -58,6 +58,11 @@
     
     NSString *value = [self argumentAtIndex:1];
 
+    if ([keyName isEqualToString:@"dependenciesPath"] && [[MODSpecModel sharedInstance].dependenciesPath isLibraryPath])
+    {
+        sderror(@"Unable to set %@ because this module is a library.  It must be \"../\".", keyName);
+    }
+    else
     if (keyName && isValidKeyName && value)
     {
         [[MODSpecModel sharedInstance] setValue:value forKey:keyName];
@@ -67,20 +72,18 @@
         }
         else
         {
-            sdprintln(@"Unable to update modulo spec in %@.  Please check that write permissions are enabled.", [SDCommandLineParser sharedInstance].startingWorkingPath);
-            exit(1);
+            sderror(@"Unable to update modulo spec in %@.  Please check that write permissions are enabled.", [SDCommandLineParser sharedInstance].startingWorkingPath);
         }
     }
     else
     {
-        sdprintln(@"An unknown error occurred.");
-        exit(1);
+        sderror(@"An unknown error occurred.");
     }
 }
 
 - (void)printHelp
 {
-    sdprintln(@"usage: modulo set <key name> <value> [--silent] [--verbose]");
+    sdprintln(@"usage: modulo set <key name> <value> [--verbose]");
     sdprintln(@"       modulo set --help\n");
     sdprintln(@"Path values should be expressed in relative form.\n");
     sdprintln(@"Valid key names are: %@\n", [self supportedKeyNames]);

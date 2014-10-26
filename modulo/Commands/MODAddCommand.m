@@ -11,6 +11,16 @@
 
 /*
  modulo add git@github.com:setdirection/ios-shared.git --branch "master"
+ 
+ // tests
+ 
+ - add clean new dep.
+ - add clean new dep w/ sub deps.
+ - add new dep that exists already as a sub dep.
+ - add clean new dep that fails.
+ - add clean new dep w/ sub deps that fail.
+
+ 
  */
 
 @implementation MODAddCommand
@@ -53,7 +63,6 @@
         return;
     }
     
-    NSString *dependencyName = [self argumentAtIndex:0].lastPathComponent;
     NSString *moduleURL = [self argumentAtIndex:0];
 
     NSString *branch = @"master";
@@ -62,72 +71,66 @@
 
     MODProcessor *processor = [MODProcessor processor];
     processor.verbose = self.verbose;
-    [processor addDependencyNamed:dependencyName moduleURL:moduleURL branch:branch];
     
-    // filter out existing deps.
-    NSArray *modifiedDependencies = processor.modifiedDependencies;
-    NSMutableArray *filteredDependencies = [NSMutableArray array];
-    for (MODSpecModel *item in modifiedDependencies)
+    BOOL success = NO;
+    
+    NSString *name = [moduleURL nameFromModuleURL];
+    MODSpecModel *existing = [[MODSpecModel sharedInstance] topLevelDependencyNamed:name];
+    if (existing)
     {
-        if (![[MODSpecModel sharedInstance] dependencyExistsNamed:item.name])
-        {
-            [filteredDependencies addObject:item];
-            [[MODSpecModel sharedInstance] addDependency:item];
-        }
+        sdprintln(@"A dependency named %@ already exists.", name);
+        exit(0);
     }
     
-    // save our file, if we got here, we're good.
-    [[MODSpecModel sharedInstance] saveSpecification];
-
-    if (filteredDependencies.count == 0)
+    success = [processor addDependencyWithModuleURL:moduleURL branch:branch];
+    if (!success)
     {
-        sdprintln(@"The dependency list didn't actually change.");
+        [processor removeDependencyNamed:name];
+        sderror(@"\nThere was an error adding %@.  See log for details.\n\nAll pending changes were reversed.", name);
     }
     else
     {
-        sdprintln(@"");
-        sdprintln(@"Add the following directories to your project or build paths:");
-        for (MODSpecModel *item in filteredDependencies)
+        NSArray *added = processor.addedDependencies;
+        
+        if (added.count == 0)
         {
-            if (![item isKindOfClass:[MODSpecModel class]])
-                continue;
+            sdprintln(@"The dependency list didn't actually change.");
+        }
+        else
+        {
+            sdprintln(@"");
+            sdprintln(@"Add the following directories to your project or build paths:");
             
-            if (item.sourcePath.length == 0)
-                sdprintln(@"    %@ (No source path specified, tell the author)", item.localPath);
-            else
+            for (MODSpecModel *item in added)
             {
-                NSString *sourcePath = [item.localPath stringByAppendingPathComponent:item.sourcePath];
-                sdprintln(@"    %@", sourcePath);
+                if (![item isKindOfClass:[MODSpecModel class]])
+                    continue;
+                
+                NSString *localPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:item.name];
+
+                if (item.sourcePath.length == 0)
+                    sdprintln(@"    %@ (No source path specified, tell the author)", localPath);
+                else
+                {
+                    NSString *sourcePath = [localPath stringByAppendingPathComponent:item.sourcePath];
+                    sdprintln(@"    %@", sourcePath);
+                }
             }
         }
+        
+        MODSpecModel *topLevelDependency = [MODSpecModel instanceFromName:name];
+        [[MODSpecModel sharedInstance] addDependency:topLevelDependency];
+        
+        [[MODSpecModel sharedInstance] saveSpecification];
     }
-    
-    /*if ([MODSpecModel sharedInstance].otherDependencies.count > 0)
-    {
-        sdprintln(@"");
-        sdprintln(@"The following additional dependencies must be added as well:");
-        for (MODSpecOtherDependencyModel *item in [MODSpecModel sharedInstance].otherDependencies)
-        {
-            sdprintln(@"    %@ (usually at %@)", item.name, item.defaultPath);
-        }
-    }*/
-    
+
     sdprintln(@"");
-
 }
-
 
 - (void)printHelp
 {
-    if ([MODSpecModel sharedInstance].name && ![self hasOption:@"help"])
-    {
-        sdprintln(@"This directory has already been initialized for use with modulo.");
-    }
-    else
-    {
-        sdprintln(@"usage: modulo add [--verbose] [--silent]");
-        sdprintln(@"       modulo add --help");
-    }
+    sdprintln(@"usage: modulo add <git repo url> [--branch <branch>] [--verbose]");
+    sdprintln(@"       modulo add --help");
 }
 
 - (NSString *)helpDescription

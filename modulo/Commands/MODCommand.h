@@ -15,4 +15,6 @@ typedef NSInteger (^MODCommandParseBlock)(NSInteger returnStatus, NSString *outp
 
 @property (nonatomic, readonly) BOOL verbose;
 
+- (void)checkDependencyPath;
+
 @end

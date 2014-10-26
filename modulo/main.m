@@ -14,23 +14,13 @@
 #import "MODHelpCommand.h"
 #import "MODAddCommand.h"
 #import "MODRemoveCommand.h"
+#import "MODUpdateCommand.h"
 
 /*
- 
-    * = done for now
-    ~ = in progress
- 
-    *--help - shows help
-    *--version - shows the version info
-    ~init - initializes the path for use with modulo
-    validate - validates dependencies, overall setup, etc
-    add - adds a dependency
-    rm - removes a dependency
-    dependency - performs actions related to a given dependency
-    clean - removes modulo.spec and all dependency files
-    update - updates dependencies and their subdependencies
-    ~set - sets a key/value pair in the projects modulo.spec file
-    outdated - looks through dependencies to find what modules may be outdated
+ modulo branch <branch name> // switches master project and all deps to specified branch, creates if necessary.
+ modulo remove .. -f // removes submodules and cleans.  checks stashes, status, outstanding changes, and unpushed commits before destroying.
+                     // -f forces destruction, regardless of checks.
+ modulo update .. -f // the removal piece works the same as remove above. -f forces destruction.
  */
 
 int main(int argc, const char * argv[]) {
@@ -41,6 +31,7 @@ int main(int argc, const char * argv[]) {
         MODHelpCommand *helpCommand = [MODHelpCommand commandWithName:@"--help" primary:NO];
         MODAddCommand *addCommand = [MODAddCommand commandWithName:@"add" primary:YES];
         MODRemoveCommand *removeCommand = [MODRemoveCommand commandWithName:@"remove" primary:YES];
+        MODUpdateCommand *updateCommand = [MODUpdateCommand commandWithName:@"update" primary:YES];
         
         SDCommandLineParser *commandLine = [SDCommandLineParser sharedInstance];
         [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[initCommand,
@@ -48,7 +39,8 @@ int main(int argc, const char * argv[]) {
                                                                   versionCommand,
                                                                   helpCommand,
                                                                   addCommand,
-                                                                  removeCommand]];
+                                                                  removeCommand,
+                                                                  updateCommand]];
         
         // we wanna print this if we don't get any valid commands at all.
         commandLine.helpCommand = helpCommand;

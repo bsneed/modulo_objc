@@ -21,7 +21,7 @@
 
 - (NSSet<NSString> *)supportedOptions
 {
-    return (NSSet<NSString> *)[NSSet setWithObjects:@"help", @"verbose", @"silent", nil];
+    return (NSSet<NSString> *)[NSSet setWithObjects:@"help", @"verbose", nil];
 }
 
 - (BOOL)checkValidityOfCommand
@@ -33,6 +33,32 @@
 {
     if (![MODSpecModel sharedInstance].isInitialized)
         sderror(@"This directory has not been initialized for modulo.");
+    
+    [self checkDependencyPath];
+}
+
+- (void)checkDependencyPath
+{
+    // do they have a dependency path set?
+    NSString *dependenciesPath = [MODSpecModel sharedInstance].dependenciesPath;
+    if (dependenciesPath.length == 0)
+        sderror(@"The dependenciesPath value has not been set.\nUse: modulo set dependenciesPath <relative path>");
+    
+    // is that dependency path actually valid?
+    NSString *dependenciesFullPath = [[SDCommandLineParser sharedInstance].currentWorkingPath stringByAppendingPathComponent:dependenciesPath];
+    BOOL isDirectory = NO;
+    BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:dependenciesFullPath isDirectory:&isDirectory];
+    
+    if (pathExists && !isDirectory)
+        sderror(@"The path %@ exists and isn't a directory.");
+    
+    if (!pathExists || !isDirectory)
+    {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:dependenciesFullPath withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error)
+            sderror(@"There was a problem creating %@", dependenciesPath);
+    }
 }
 
 @end

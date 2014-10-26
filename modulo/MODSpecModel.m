@@ -12,6 +12,10 @@
 
 GENERICSABLE_IMPLEMENTATION(MODSpecModel)
 
+@interface MODSpecModel ()
+@property (nonatomic, strong) NSString *pathToModel;
+@end
+
 @implementation MODSpecModel
 
 - (NSDictionary *)mappingDictionaryForData:(id)data
@@ -20,13 +24,10 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
              @"projectURL": sdmo_key(self.projectURL),
              @"moduleURL": sdmo_key(self.moduleURL),
              @"licenseURL": sdmo_key(self.licenseURL),
-             @"library": sdmo_key(self.library),
              @"sourcePath": sdmo_key(self.sourcePath),
-             @"localPath": sdmo_key(self.localPath),
              @"initialBranch": sdmo_key(self.initialBranch),
              @"dependenciesPath": sdmo_key(self.dependenciesPath),
-             @"dependencies": sdmo_key(self.dependencies),
-             @"otherDependencies": sdmo_key(self.otherDependencies)};
+             @"dependencies": sdmo_key(self.dependencies)};
 }
 
 - (NSDictionary *)exportMappingDictionary
@@ -35,14 +36,10 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
              @"projectURL": @"(NSString)projectURL",
              @"moduleURL": @"(NSString)moduleURL",
              @"licenseURL": @"(NSString)licenseURL",
-             @"library": @"(NSNumber)library",
              @"sourcePath": @"(NSString)sourcePath",
-             @"localPath": @"(NSString)localPath",
              @"initialBranch": @"(NSString)initialBranch",
              @"dependenciesPath": @"(NSString)dependenciesPath",
-             @"dependencies": @"(NSArray<NSDictionary>)dependencies",
-             @"otherDependencies": @"(NSArray<NSDictionary>)otherDependencies"};
-    
+             @"dependencies": @"(NSArray<NSDictionary>)dependencies"};
 }
 
 - (BOOL)validModel
@@ -76,6 +73,15 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return specModel;
 }
 
++ (instancetype)instanceFromName:(NSString *)name;
+{
+    MODSpecModel *instance = [MODSpecModel sharedInstance];
+    NSString *path = [instance dependencyLocalPathFromName:name];
+    MODSpecModel *newInstance = [MODSpecModel instanceFromPath:path];
+    
+    return newInstance;
+}
+
 - (instancetype)init
 {
     if ((self = [super init]))
@@ -83,6 +89,26 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     }
     
     return self;
+}
+
+- (NSString *)localPath
+{
+    NSString *dependenciesPath = [MODSpecModel sharedInstance].dependenciesPath;
+    NSString *dependenciesFullPath = [[SDCommandLineParser sharedInstance].currentWorkingPath stringByAppendingPathComponent:dependenciesPath];
+    NSString *dependencyLocalPath = [[dependenciesFullPath stringByAppendingPathComponent:self.name] stringWithPathRelativeTo:[SDCommandLineParser sharedInstance].startingWorkingPath];
+
+    return dependencyLocalPath;
+}
+
+- (NSString *)dependencyLocalPathFromName:(NSString *)name
+{
+    NSString *dependenciesFullPath = [[SDCommandLineParser sharedInstance].currentWorkingPath stringByAppendingPathComponent:self.dependenciesPath];
+    
+    NSString *dependencyName = name;
+    dependencyName = [dependencyName stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@".%@", dependencyName.pathExtension] withString:@""];
+    NSString *dependencyLocalPath = [[dependenciesFullPath stringByAppendingPathComponent:dependencyName] stringWithPathRelativeTo:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    
+    return dependencyLocalPath;
 }
 
 - (BOOL)loadSpecification
@@ -149,102 +175,103 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return result;
 }
 
+- (NSString *)description
+{
+    return self.name;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    if (![object isKindOfClass:[MODSpecModel class]])
+        return NO;
+    
+    MODSpecModel *obj = (MODSpecModel *)object;
+    if ([self.name isEqualToString:obj.name])
+        return YES;
+    return NO;
+}
+
 - (void)addDependency:(MODSpecModel *)dependency
 {
-    NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
-    [dependencies addObject:dependency];
-    self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:dependencies];
+    NSMutableArray *newDeps = [self.dependencies mutableCopy];
+    [newDeps addObject:dependency];
+    self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
 }
 
-- (BOOL)dependencyExistsNamed:(NSString *)name
+- (void)removeTopLevelDependencyNamed:(NSString *)name
 {
-    BOOL result = NO;
-    for (MODSpecModel *item in self.dependencies)
+    NSMutableArray *newDeps = [self.dependencies mutableCopy];
+    for (MODSpecModel *item in newDeps)
     {
         if ([item.name isEqualToString:name])
         {
-            result = YES;
+            [newDeps removeObject:item];
             break;
         }
     }
-    return result;    
+    self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
 }
 
-- (MODSpecModel *)dependencyNamed:(NSString *)name
+- (MODSpecModel *)topLevelDependencyNamed:(NSString *)name
 {
-    MODSpecModel *result = nil;
     for (MODSpecModel *item in self.dependencies)
     {
         if ([item.name isEqualToString:name])
-        {
-            result = item;
-            break;
-        }
-    }
-    return result;
-}
-
-- (BOOL)removeDependencyNamed:(NSString *)name
-{
-    NSMutableArray *dependencies = [NSMutableArray arrayWithArray:self.dependencies];
-    BOOL result = NO;
-    MODSpecModel *itemToRemove = nil;
-    for (MODSpecModel *item in dependencies)
-    {
-        if ([item.name isEqualToString:name])
-        {
-            result = YES;
-            itemToRemove = item;
-            break;
-        }
+            return item;
     }
     
-    if (result)
-    {
-        [dependencies removeObject:itemToRemove];
-        self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:dependencies];
-    }
+    return nil;
+}
+
+- (BOOL)dependsOn:(NSString *)name
+{
+    BOOL result = NO;
+    
+    NSArray *deps = [self flatDependencyList];
+    if ([deps containsObject:name])
+        return YES;
     
     return result;
 }
 
-- (NSArray *)dependenciesThatDependOn:(NSString *)name;
+- (NSArray<NSString> *)topLevelNamesThatDependOn:(NSString *)name
 {
-    NSMutableArray *dependents = [NSMutableArray array];
-    
-    // dependencies are arranged somewhat flat when stored, so we really only need to look at the first level deep.
+    NSMutableArray *result = [NSMutableArray array];
     
     for (MODSpecModel *item in self.dependencies)
     {
-        for (MODSpecModel *subItem in item.dependencies)
+        if ([item dependsOn:name])
         {
-            if ([subItem.name isEqualToString:name])
-                [dependents addObject:item];
+            [result addObject:item.name];
         }
     }
     
-    return [NSArray arrayWithArray:dependents];
+    if (result.count == 0)
+        return nil;
+    
+    return (NSArray<NSString> *)[NSArray arrayWithArray:result];
 }
 
-- (NSArray *)dependenciesThatDependOn:(NSString *)name excluding:(NSString *)exclusionName
+- (NSArray<NSString> *)flatDependencyList
 {
-    NSMutableArray *dependents = [NSMutableArray array];
+    NSMutableArray *result = [NSMutableArray array];
     
-    // dependencies are arranged somewhat flat when stored, so we really only need to look at the first level deep.
+    [self _flatDependencyList:result];
     
+    if (result.count == 0)
+        return nil;
+    
+    return (NSArray<NSString> *)[NSArray arrayWithArray:result];
+}
+
+- (void)_flatDependencyList:(NSMutableArray *)array
+{
     for (MODSpecModel *item in self.dependencies)
     {
-        if ([item.name isEqualToString:exclusionName])
-            continue;
-        
-        for (MODSpecModel *subItem in item.dependencies)
-        {
-            if ([subItem.name isEqualToString:name])
-                [dependents addObject:item];
-        }
+        if (![array containsObject:item.name])
+            [array addObject:item.name];
+        [item _flatDependencyList:array];
     }
-    
-    return [NSArray arrayWithArray:dependents];
 }
 
 @end

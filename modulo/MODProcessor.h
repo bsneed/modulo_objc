@@ -9,17 +9,21 @@
 #import <Foundation/Foundation.h>
 #import "MODSpecModel.h"
 #import "MODCommand.h"
+#import "NSString+MODExtensions.h"
 
 @interface MODProcessor : NSObject
 
 @property (nonatomic, assign) BOOL verbose;
-@property (nonatomic, readonly) NSArray *modifiedDependencies;
+@property (nonatomic, readonly) NSString *startingDependencyName;
+@property (nonatomic, readonly) NSArray *addedDependencies;
+@property (nonatomic, readonly) NSArray<NSString> *removedDependencies;
+@property (nonatomic, readonly) NSArray<NSString> *updatedDependencies;
+@property (nonatomic, readonly) NSArray<NSString> *uncleanDependencies;
 
 + (instancetype)processor;
 
-//- (MODSpecModel *)processDependencyNamed:(NSString *)name moduleURL:(NSString *)moduleURL branch:(NSString *)branch;
-//- (void)rewindDependency:(NSString *)dependencyName localPath:(NSString *)dependencyLocalPath error:(NSString *)error;
-- (void)addDependencyNamed:(NSString *)dependencyName moduleURL:(NSString *)moduleURL branch:(NSString *)branch;
-- (void)removeDependencyNamed:(NSString *)dependencyName;
+- (BOOL)addDependencyWithModuleURL:(NSString *)moduleURL branch:(NSString *)branch;
+- (BOOL)removeDependencyNamed:(NSString *)name;
+- (BOOL)updateDependencNamed:(NSString *)name;
 
 @end

@@ -14,7 +14,7 @@
 {
     NSSet *superSet = [super supportedOptions];
     NSMutableSet *newSet = [NSMutableSet setWithSet:superSet];
-    [newSet addObjectsFromArray:@[@"library"]];
+    [newSet addObjectsFromArray:@[@"module"]];
     
     return (NSSet<NSString> *)[NSSet setWithSet:newSet];
 }
@@ -45,17 +45,15 @@
     }
 
     [MODSpecModel sharedInstance].name = [[SDCommandLineParser sharedInstance].startingWorkingPath lastPathComponent];
-    if ([self hasOption:@"library"])
+    if ([self hasOption:@"module"])
     {
         [MODSpecModel sharedInstance].dependenciesPath = @"../";
         [MODSpecModel sharedInstance].sourcePath = [MODSpecModel sharedInstance].name;
-        [MODSpecModel sharedInstance].library = YES;
         [MODSpecModel sharedInstance].initialBranch = @"master";
     }
     else
     {
         [MODSpecModel sharedInstance].dependenciesPath = @"dependencies";
-        [MODSpecModel sharedInstance].library = NO;
     }
     
     if ([[MODSpecModel sharedInstance] saveSpecification])
@@ -76,7 +74,7 @@
     }
     else
     {
-        sdprintln(@"usage: modulo init [--library] [--verbose] [--silent]");
+        sdprintln(@"usage: modulo init [--module] [--verbose]");
         sdprintln(@"       modulo init --help");
     }
 }

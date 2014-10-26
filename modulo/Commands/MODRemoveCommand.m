@@ -37,32 +37,62 @@
         return;
     }
     
-    NSString *dependencyName = [self argumentAtIndex:0];
-    if ([[MODSpecModel sharedInstance] dependencyExistsNamed:dependencyName])
+    NSString *name = [self argumentAtIndex:0];
+    MODProcessor *processor = [MODProcessor processor];
+    processor.verbose = self.verbose;
+    
+    MODSpecModel *existing = [[MODSpecModel sharedInstance] topLevelDependencyNamed:name];
+    NSArray *topLevelNames = [[MODSpecModel sharedInstance] topLevelNamesThatDependOn:name];
+    if (!existing)
     {
-        MODProcessor *processor = [MODProcessor processor];
-        processor.verbose = self.verbose;
-        [processor removeDependencyNamed:dependencyName];
-        
-        [[MODSpecModel sharedInstance] saveSpecification];
+        sderror(@"No top-level module exists named %@.", name);
+    }
+    
+    if (topLevelNames)
+    {
+        sdprintln(@"Unable to remove %@.\n\nThe following top-level modules still depend on it:", name);
+        for (NSString *item in topLevelNames)
+        {
+            sdprintln(@"    %@", item);
+        }
+        sderror(@"");
+    }
+
+    BOOL success = [processor removeDependencyNamed:name];
+    if (!success)
+    {
+        sderror(@"An unknown error occurred attempting to remove %@.  See log for details.", name);
     }
     else
     {
-        sderror(@"No dependency exists named %@", dependencyName);
+        NSArray *removed = processor.removedDependencies;
+        NSArray *unclean = processor.uncleanDependencies;
+        
+        if (removed.count)
+        {
+            sdprintln(@"The following modules were removed:");
+            for (NSString *item in removed)
+                sdprintln(@"    %@", item);
+            sdprintln(@"");
+        }
+        
+        if (unclean.count)
+        {
+            sdprintln(@"The following modules were removed but not deleted because they have stashes, changes, or commits that have not been pushed:");
+            for (NSString *item in unclean)
+                sdprintln(@"    %@", item);
+            sdprintln(@"");
+        }
+        
+        [[MODSpecModel sharedInstance] removeTopLevelDependencyNamed:name];
+        [[MODSpecModel sharedInstance] saveSpecification];
     }
 }
 
 - (void)printHelp
 {
-    if ([MODSpecModel sharedInstance].name && ![self hasOption:@"help"])
-    {
-        sdprintln(@"This directory has already been initialized for use with modulo.");
-    }
-    else
-    {
-        sdprintln(@"usage: modulo add [--verbose] [--silent]");
-        sdprintln(@"       modulo add --help");
-    }
+    sdprintln(@"usage: modulo remove <module name> [--verbose]");
+    sdprintln(@"       modulo remove --help");
 }
 
 - (NSString *)helpDescription

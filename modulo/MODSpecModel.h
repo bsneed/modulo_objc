@@ -7,31 +7,28 @@
 //
 
 #import "SDModelObject.h"
-#import "MODSpecOtherDependencyModel.h"
+#import "NSString+MODExtensions.h"
 
 GENERICSABLE(MODSpecModel)
 
 @interface MODSpecModel : SDModelObject
 
 // data map properties
+
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *projectURL;
 @property (nonatomic, copy) NSString *moduleURL;
 @property (nonatomic, copy) NSString *licenseURL;
-@property (nonatomic, assign) BOOL library;
 @property (nonatomic, copy) NSString *sourcePath;
-@property (nonatomic, copy) NSString *localPath;
 @property (nonatomic, copy) NSString *initialBranch;
-
 @property (nonatomic, copy) NSString *dependenciesPath;
 @property (nonatomic, strong) NSArray<MODSpecModel> *dependencies;
-@property (nonatomic, strong) NSArray<MODSpecOtherDependencyModel> *otherDependencies;
-
-// regular properties
-@property (nonatomic, copy) NSString *pathToModel;
 
 + (instancetype)sharedInstance;
 + (instancetype)instanceFromPath:(NSString *)path;
++ (instancetype)instanceFromName:(NSString *)name;
+
+- (NSString *)dependencyLocalPathFromName:(NSString *)name;
 
 - (BOOL)saveSpecification;
 
@@ -39,10 +36,11 @@ GENERICSABLE(MODSpecModel)
 - (BOOL)hasDependencyPathSet;
 
 - (void)addDependency:(MODSpecModel *)dependency;
-- (BOOL)dependencyExistsNamed:(NSString *)name;
-- (MODSpecModel *)dependencyNamed:(NSString *)name;
-- (NSArray *)dependenciesThatDependOn:(NSString *)name;
-- (NSArray *)dependenciesThatDependOn:(NSString *)name excluding:(NSString *)exclusionName;
-- (BOOL)removeDependencyNamed:(NSString *)name;
+- (void)removeTopLevelDependencyNamed:(NSString *)name;
+- (MODSpecModel *)topLevelDependencyNamed:(NSString *)name;
+- (NSArray<NSString> *)topLevelNamesThatDependOn:(NSString *)name;
+- (BOOL)dependsOn:(NSString *)name;
+
+- (NSArray<NSString> *)flatDependencyList;
 
 @end
