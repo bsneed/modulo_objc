@@ -14,7 +14,8 @@
     NSMutableArray *_addedDependencies;
     NSMutableArray *_removedDependencies;
     NSMutableArray *_updatedDependencies;
-    NSMutableArray *_uncleanDependencies;
+    
+    NSMutableArray *_itemsToBeRemoved;
     
     NSFileManager *_fileManager;
 }
@@ -31,16 +32,17 @@
 {
     self = [super init];
     
-    _startingDependencyName = nil;
     _addedDependencies = [NSMutableArray array];
     _removedDependencies = [NSMutableArray array];
     _updatedDependencies = [NSMutableArray array];
-    _uncleanDependencies = [NSMutableArray array];
+    _itemsToBeRemoved = [NSMutableArray array];
     
     _fileManager = [NSFileManager defaultManager];
     
     return self;
 }
+
+#pragma mark - Public Properties
 
 - (NSArray *)addedDependencies
 {
@@ -57,18 +59,12 @@
     return [NSArray arrayWithArray:_updatedDependencies];
 }
 
-- (NSArray *)uncleanDependencies
-{
-    return [NSArray arrayWithArray:_uncleanDependencies];
-}
+#pragma mark - Public Methods
 
 - (BOOL)addDependencyWithModuleURL:(NSString *)moduleURL branch:(NSString *)branch;
 {
     BOOL result = YES;
     NSString *name = [moduleURL nameFromModuleURL];
-    
-    if (!_startingDependencyName)
-        _startingDependencyName = [name copy];
     
     NSInteger status = 0;
     MODSpecModel *dependencyModel = nil;
@@ -77,7 +73,7 @@
     BOOL isLibrary = [dependencyLocalPath isLibraryPath];
     
     BOOL isDirectory = NO;
-    BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:dependencyLocalPath isDirectory:&isDirectory];
+    BOOL pathExists = [_fileManager fileExistsAtPath:dependencyLocalPath isDirectory:&isDirectory];
     if (pathExists && !isDirectory)
     {
         sdprintln(@"%@ exists already and isn't a directory.  Unable to add dependency.", dependencyLocalPath);
@@ -147,9 +143,6 @@ completionLabel:
         dependencyModel.name = name;
     if (!dependencyModel.moduleURL)
         dependencyModel.moduleURL = moduleURL;
-
-    if (![_addedDependencies containsObject:dependencyModel])
-        [_addedDependencies addObject:dependencyModel];
     
     if (result)
     {
@@ -158,11 +151,13 @@ completionLabel:
             result = [self addDependencyWithModuleURL:item.moduleURL branch:item.initialBranch];
             if (!result)
                 break;
-//            else
-//            {
-//                [[MODSpecModel sharedInstance] addDependency:item];
-//            }
         }
+    }
+    
+    if ([[MODSpecModel sharedInstance] addDependency:dependencyModel])
+    {
+        if (![_addedDependencies containsObject:dependencyModel])
+            [_addedDependencies addObject:dependencyModel];
     }
     
     return result;
@@ -170,18 +165,15 @@ completionLabel:
 
 - (BOOL)removeDependencyNamed:(NSString *)name
 {
-    if (!_startingDependencyName)
-        _startingDependencyName = [name copy];
-    
     BOOL result = YES;
 
-    MODSpecModel *existing = [[MODSpecModel sharedInstance] topLevelDependencyNamed:name];
+    MODSpecModel *existing = [[MODSpecModel sharedInstance] dependencyNamed:name];
     if (!existing)
         result = NO;
 
     if (result)
     {
-        NSArray<NSString> *names = [existing flatDependencyList];
+        NSArray<NSString> *names = [[MODSpecModel sharedInstance] dependencyNames];
         NSMutableArray *namesToProcess = [NSMutableArray array];
         
         // add the main one we're working on to the list.
@@ -195,13 +187,17 @@ completionLabel:
             // remove it from our list of things to process.
             for (NSString *item in names)
             {
-                NSArray *otherDepNames = [[MODSpecModel sharedInstance] topLevelNamesThatDependOn:item];
+                // skip our working name if we come across it.
+                if ([item isEqualToString:name])
+                    continue;
+                
+                NSArray *otherDepNames = [[MODSpecModel sharedInstance] namesThatDependOn:item];
                 if (!otherDepNames)
                     [namesToProcess addObject:item];
             }
         }
         
-        
+        // now physically remove the ones in this list.
         if (namesToProcess.count > 0)
         {
             for (NSString *item in namesToProcess)
@@ -214,12 +210,32 @@ completionLabel:
     return result;
 }
 
-- (BOOL)updateDependencNamed:(NSString *)name
+- (BOOL)updateDependencyNames:(NSArray<NSString> *)names
 {
-    if (!_startingDependencyName)
-        _startingDependencyName = [name copy];
+    BOOL result = NO;
     
-    return NO;
+    for (NSString *item in names)
+    {
+        result = [self _updateDependencyNamed:item skipRemove:YES];
+        if (!result)
+            break;
+    }
+    
+    if (_itemsToBeRemoved.count)
+    {
+        for (NSString *item in _itemsToBeRemoved)
+            [self removeDependencyNamed:item];
+    }
+    
+    // sync our main project submodules if it's not a module.
+    if (![[MODSpecModel sharedInstance].dependenciesPath isLibraryPath])
+    {
+        NSInteger status = [self runCommand:@"git submodule sync"];
+        if (status != 0)
+            result = NO;
+    }
+    
+    return result;
 }
 
 #pragma mark - Running Commands
@@ -241,7 +257,7 @@ completionLabel:
         status = parseBlock(status, outputString);
         if (status != 0)
             sdprintln(outputString);
-        [[NSFileManager defaultManager] removeItemAtPath:@".modulo_temp.txt" error:nil];
+        [_fileManager removeItemAtPath:@".modulo_temp.txt" error:nil];
     }
     
     return status;
@@ -259,7 +275,7 @@ completionLabel:
     NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
     
     // get into our dependency dir
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:dependencyLocalPath];
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
     __block NSString *branch = nil;
     NSInteger status = [self runCommand:@"git rev-parse --abbrev-ref HEAD" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
@@ -269,7 +285,7 @@ completionLabel:
     }];
     
     // get back home.
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
     
     if (status != 0)
         sderror(@"Unable to determine the current branch for %@.", name);
@@ -283,7 +299,7 @@ completionLabel:
     NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
     
     // get into our dependency dir
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:dependencyLocalPath];
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
     NSString *command = [NSString stringWithFormat:@"git rev-list origin/%@...%@", branch, branch];
     __block BOOL hasPushesToDo = NO;
@@ -293,7 +309,7 @@ completionLabel:
     }];
     
     // get back home.
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
     
     if (status != 0)
         sderror(@"Unable to determine the current branch for %@.", name);
@@ -306,7 +322,7 @@ completionLabel:
     NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
     
     // get into our dependency dir
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:dependencyLocalPath];
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
     __block BOOL hasStashes = NO;
     NSInteger status = [self runCommand:@"git stash list" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
@@ -315,7 +331,7 @@ completionLabel:
     }];
     
     // get back home.
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
     
     if (status != 0)
         sderror(@"Unable to determine the current branch for %@.", name);
@@ -328,7 +344,7 @@ completionLabel:
     NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
     
     // get into our dependency dir
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:dependencyLocalPath];
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
     __block BOOL hasChanges = NO;
     NSInteger status = [self runCommand:@"git status" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
@@ -339,12 +355,66 @@ completionLabel:
     }];
     
     // get back home.
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
     
     if (status != 0)
         sderror(@"Unable to determine the current branch for %@.", name);
     
     return hasChanges;
+}
+
+- (BOOL)hasPushAccessForName:(NSString *)name
+{
+    NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
+    
+    // get into our dependency dir
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
+    
+    __block BOOL hasPushAccess = NO;
+    NSInteger status = [self runCommand:@"git remote -v" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+        hasPushAccess = NO;
+        if ([outputString rangeOfString:@"(push)"].location != NSNotFound)
+            hasPushAccess = YES;
+        return returnStatus;
+    }];
+    
+    // get back home.
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    
+    if (status != 0)
+        sderror(@"Unable to determine the current branch for %@.", name);
+    
+    return hasPushAccess;
+}
+
+- (NSArray<NSString> *)uncleanDependencies
+{
+    return [self uncleanDependenciesForName:nil];
+}
+
+- (NSArray<NSString> *)uncleanDependenciesForName:(NSString *)name
+{
+    NSMutableArray *uncleanDeps = [NSMutableArray array];
+    NSArray *deps = nil;
+    if (name && name.length > 0)
+        deps = [[MODSpecModel sharedInstance] namesThatDependOn:name];
+    else
+        deps = [[MODSpecModel sharedInstance] dependencyNames];
+    
+    for (NSString *item in deps)
+    {
+        BOOL hasStashes = [self hasStashesForName:item];
+        BOOL hasCommitsToPush = [self hasOutstandingPushesForName:item];
+        BOOL hasChangesToCommit = [self hasOutstandingChangesForName:item];
+        
+        if (hasStashes || hasCommitsToPush || hasChangesToCommit)
+            [uncleanDeps addObject:item];
+    }
+    
+    if (uncleanDeps.count)
+        return (NSArray<NSString> *)[NSArray arrayWithArray:uncleanDeps];
+    
+    return nil;
 }
 
 #pragma mark - Internal utlities
@@ -355,10 +425,7 @@ completionLabel:
 
     BOOL isLibrary = [dependencyLocalPath isLibraryPath];
     
-    BOOL hasStashes = [self hasStashesForName:name];
-    BOOL hasCommitsToPush = [self hasOutstandingPushesForName:name];
-    BOOL hasChangesToCommit = [self hasOutstandingChangesForName:name];
-    
+    // if it's not a library, we need to muck with git a little.
     if (!isLibrary)
     {
         // it failed, we need to rewind it.
@@ -372,99 +439,87 @@ completionLabel:
         [self runCommand:rmGitCommand];
     }
     
-    if (hasStashes || hasCommitsToPush || hasChangesToCommit)
-    {
-        [_uncleanDependencies addObject:name];
-    }
-    else
-    {
-        // there's nothing pending, blow it away.
-        NSString *rmCommand = [NSString stringWithFormat:@"rm -rf %@", dependencyLocalPath];
-        [self runCommand:rmCommand];
-        [_removedDependencies addObject:name];
-    }
+    NSString *rmCommand = [NSString stringWithFormat:@"rm -rf %@", dependencyLocalPath];
+    [self runCommand:rmCommand];
+    [_removedDependencies addObject:name];
 }
 
-/*
-
-- (void)updateDependencies:(NSArray *)dependencies
+- (BOOL)_updateDependencyNamed:(NSString *)name skipRemove:(BOOL)skipRemove
 {
-    NSString *dependenciesPath = [MODSpecModel sharedInstance].dependenciesPath;
-    if (dependenciesPath.length == 0)
-        sderror(@"The dependenciesPath value has not been set.\nUse: modulo set dependenciesPath <relative path>");
-
-    NSString *dependenciesFullPath = [[SDCommandLineParser sharedInstance].currentWorkingPath stringByAppendingPathComponent:dependenciesPath];
-
-    // do a plain jane update of the dependencies first..
-    for (NSString *item in dependencies)
+    BOOL result = NO;
+    
+    NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
+    
+    MODSpecModel *originalSpec = [MODSpecModel instanceFromPath:dependencyLocalPath];
+    
+    // get into our dependency dir
+    [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
+    
+    // update that mofo.
+    NSInteger status = [self runCommand:@"git pull --recurse-submodules"];
+    
+    // update any sub-submodules
+    if (status == 0)
+        status = [self runCommand:@"git submodule update --recursive"];
+    
+    // synchronize any sub-submodules
+    if (status == 0)
+        status = [self runCommand:@"git submodule sync"];
+    
+    // get back home.
+    [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    
+    if (status != 0)
+        sderror(@"There was a problem updating %@.  See the log for details.  After correcting the issue, re-run this command.", name);
+    
+    MODSpecModel *updatedSpec = [MODSpecModel instanceFromPath:dependencyLocalPath];
+    
+    NSMutableArray *originalNames = [[originalSpec dependencyNames] mutableCopy];
+    NSMutableArray *updatedNames = [[updatedSpec dependencyNames] mutableCopy];
+    
+    // update the items in our current spec with the changes we just got.
+    for (NSString *item in updatedNames)
     {
-        NSString *dependencyName = item;
-        sdprintln(@"Updating %@...", dependencyName);
-        
-        NSString *dependencyLocalPath = [[dependenciesFullPath stringByAppendingPathComponent:dependencyName] stringWithPathRelativeTo:[SDCommandLineParser sharedInstance].startingWorkingPath];
-
-        // get into our dependency dir
-        [[NSFileManager defaultManager] changeCurrentDirectoryPath:dependencyLocalPath];
-        
-        // update that mofo.
-        NSInteger status = [self runCommand:@"git pull -u"];
-        
-        // get back home.
-        [[NSFileManager defaultManager] changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
-        
-        if (status != 0)
-            sderror(@"There was a problem updating %@.  See the log for details.  After correcting the issue, re-run this command.", dependencyName);
+        MODSpecModel *updatedDep = [updatedSpec dependencyNamed:item];
+        [[MODSpecModel sharedInstance] updateDependency:updatedDep];
     }
     
-    // cycle through the deps and open up their spec file and see if any new dependencies were added or removed.
-    for (NSString *item in dependencies)
+    // find out which deps have been added
+    NSMutableArray *addedNames = [updatedNames copy];
+    [updatedNames removeObjectsInArray:originalNames];
+    
+    // find out which deps have been removed.
+    NSMutableArray *removedNames = [originalNames copy];
+    [originalNames removeObjectsInArray:updatedNames];
+    
+    if (addedNames.count)
     {
-        NSString *dependencyName = item;
-        NSString *dependencyLocalPath = [[dependenciesFullPath stringByAppendingPathComponent:dependencyName] stringWithPathRelativeTo:[SDCommandLineParser sharedInstance].startingWorkingPath];
-
-        MODSpecModel *startSpec = [[MODSpecModel sharedInstance] dependencyNamed:dependencyName];
-        MODSpecModel *endSpec = [MODSpecModel instanceFromPath:dependencyLocalPath];
-        
-        NSMutableArray *addedDeps = [NSMutableArray array];
-        NSMutableArray *removedDeps = [NSMutableArray array];
-        
-        // if we enum the startSpec, and find something that doesn't exist in endSpec, it means that dep has been REMOVED.
-        for (MODSpecModel *dep in startSpec.dependencies)
+        for (NSString *item in updatedNames)
         {
-            BOOL existsInOtherSpec = [endSpec dependencyExistsNamed:dep.name];
-            if (!existsInOtherSpec)
-                [removedDeps addObject:dep];
+            MODSpecModel *updatedDep = [updatedSpec dependencyNamed:item];
+            result = [self addDependencyWithModuleURL:updatedDep.moduleURL branch:updatedDep.initialBranch];
         }
-        
-        // if we enum the endSpec, and find something that doesn't exist in startSpec, it means that dep has been ADDED.
-        for (MODSpecModel *dep in endSpec.dependencies)
-        {
-            BOOL existsInOtherSpec = [startSpec dependencyExistsNamed:dep.name];
-            if (!existsInOtherSpec)
-                [addedDeps addObject:dep];
-        }
-        
-        // ADD dependencies
-        
-        // add first, if it fails, it prevents us from removing other stuff since we exit.
-        for (MODSpecModel *dep in addedDeps)
-        {
-            [self addDependencyNamed:dep.name moduleURL:dep.moduleURL branch:dep.initialBranch];
-        }
-        
-        // REMOVE dependencies
-        
-        for (MODSpecModel *dep in removedDeps)
-        {
-            NSArray *dependents = [[MODSpecModel sharedInstance] dependenciesThatDependOn:dep.name];
-            if (dependents.count > 0)
-                continue;
-            
-            [self removeDependencyNamed:dep.name];
-        }
-        
-        [[MODSpecModel sharedInstance] replaceDependency:startSpec withDependency:endSpec];
     }
-}*/
+    
+    if (removedNames.count && result)
+    {
+        if (!skipRemove)
+        {
+            for (NSString *item in removedNames)
+            {
+                // we don't care if this fails .. it'll only actually get removed if
+                // nothing else depends on it.
+                [self removeDependencyNamed:item];
+            }
+        }
+        else
+        {
+            // put these names someplace so we can remove them later.
+            [_itemsToBeRemoved addObjectsFromArray:removedNames];
+        }
+    }
+    
+    return result;
+}
 
 @end

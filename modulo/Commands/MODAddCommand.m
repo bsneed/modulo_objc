@@ -75,11 +75,10 @@
     BOOL success = NO;
     
     NSString *name = [moduleURL nameFromModuleURL];
-    MODSpecModel *existing = [[MODSpecModel sharedInstance] topLevelDependencyNamed:name];
+    MODSpecModel *existing = [[MODSpecModel sharedInstance] dependencyNamed:name];
     if (existing)
     {
-        sdprintln(@"A dependency named %@ already exists.", name);
-        exit(0);
+        sderror(@"A dependency named %@ already exists.", name);
     }
     
     success = [processor addDependencyWithModuleURL:moduleURL branch:branch];
@@ -116,10 +115,9 @@
                     sdprintln(@"    %@", sourcePath);
                 }
             }
+            
+            sdprintln(@"");
         }
-        
-        MODSpecModel *topLevelDependency = [MODSpecModel instanceFromName:name];
-        [[MODSpecModel sharedInstance] addDependency:topLevelDependency];
         
         [[MODSpecModel sharedInstance] saveSpecification];
     }

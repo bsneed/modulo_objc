@@ -24,6 +24,8 @@ GENERICSABLE(MODSpecModel)
 @property (nonatomic, copy) NSString *dependenciesPath;
 @property (nonatomic, strong) NSArray<MODSpecModel> *dependencies;
 
+// normal properties
+
 + (instancetype)sharedInstance;
 + (instancetype)instanceFromPath:(NSString *)path;
 + (instancetype)instanceFromName:(NSString *)name;
@@ -35,12 +37,12 @@ GENERICSABLE(MODSpecModel)
 - (BOOL)isInitialized;
 - (BOOL)hasDependencyPathSet;
 
-- (void)addDependency:(MODSpecModel *)dependency;
-- (void)removeTopLevelDependencyNamed:(NSString *)name;
-- (MODSpecModel *)topLevelDependencyNamed:(NSString *)name;
-- (NSArray<NSString> *)topLevelNamesThatDependOn:(NSString *)name;
-- (BOOL)dependsOn:(NSString *)name;
+- (BOOL)addDependency:(MODSpecModel *)dependency;
+- (BOOL)updateDependency:(MODSpecModel *)dependency;
+- (BOOL)removeDependencyNamed:(NSString *)name;
+- (MODSpecModel *)dependencyNamed:(NSString *)name;
 
-- (NSArray<NSString> *)flatDependencyList;
+- (NSArray<NSString> *)namesThatDependOn:(NSString *)name;
+- (NSArray<NSString> *)dependencyNames;
 
 @end

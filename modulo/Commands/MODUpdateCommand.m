@@ -20,10 +20,12 @@
         result = YES;
     else
     {
-        if (self.arguments.count == 0 && ![self hasOption:@"branch"])
+        // if they didn't specify a branch, they mean 'all'.
+        if (self.arguments.count == 0)
             result = YES;
         else
-        if (self.arguments.count >= 1 && self.arguments.count <= 2)
+        // if they did, they mean to just update the one named.
+        if (self.arguments.count == 1)
             result = YES;
     }
     
@@ -32,7 +34,7 @@
 
 - (void)performCommand
 {
-    /*[super performCommand];
+    [super performCommand];
     
     if ([self hasOption:@"help"])
     {
@@ -40,36 +42,96 @@
         return;
     }
     
-    NSString *branch = nil;
-    if ([self hasOption:@"branch"])
-    {
-        if (self.arguments.count == 1)
-            branch = [self argumentAtIndex:0];
-        else
-            branch = [self argumentAtIndex:1];
-    }
+    NSMutableArray *names = [NSMutableArray array];
     
-    NSString *repo = nil;
-    if (!branch && self.arguments.count == 1)
-        repo = [self argumentAtIndex:0];
-    
-    NSArray *modulesToUpdate = nil;
-    if (repo)
-        modulesToUpdate = @[repo];
-    else
-        modulesToUpdate = [[MODSpecModel sharedInstance].dependencies allKeys];
-    
+    NSString *name = [self argumentAtIndex:0];
     MODProcessor *processor = [MODProcessor processor];
     processor.verbose = self.verbose;
-    [processor updateDependencies:modulesToUpdate];
     
-    [[MODSpecModel sharedInstance] saveSpecification];*/
+    if (name)
+    {
+        MODSpecModel *existing = [[MODSpecModel sharedInstance] dependencyNamed:name];
+        if (!existing)
+        {
+            sderror(@"No module exists named %@.", name);
+        }
+        
+        [names addObject:name];
+    }
+    else
+    {
+        [names addObjectsFromArray:[[MODSpecModel sharedInstance] dependencyNames]];
+    }
+    
+    NSArray *unclean = nil;
+    if (name)
+        unclean = [processor uncleanDependenciesForName:name];
+    else
+        unclean = [processor uncleanDependencies];
+    
+    if (unclean && ![self hasOption:@"force"])
+    {
+        sdprintln(@"Unable to proceed.  The following modules have unpushed commits, stashes, or changes:");
+        for (NSString *item in unclean)
+            sdprintln(@"    %@", item);
+        sderror(@"");
+    }
+    
+    BOOL success = [processor updateDependencyNames:nil];
+    if (!success)
+    {
+        sderror(@"An unknown error occurred attempting to remove %@.  See log for details.", name);
+    }
+    else
+    {
+        NSArray *added = processor.addedDependencies;
+        NSArray *removed = processor.removedDependencies;
+        
+        if (added.count)
+        {
+            sdprintln(@"");
+            sdprintln(@"Add the following directories to your project or build paths:");
+            
+            for (MODSpecModel *item in added)
+            {
+                if (![item isKindOfClass:[MODSpecModel class]])
+                    continue;
+                
+                NSString *localPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:item.name];
+                
+                if (item.sourcePath.length == 0)
+                    sdprintln(@"    %@ (No source path specified, tell the author)", localPath);
+                else
+                {
+                    NSString *sourcePath = [localPath stringByAppendingPathComponent:item.sourcePath];
+                    sdprintln(@"    %@", sourcePath);
+                }
+            }
+
+            sdprintln(@"");
+        }
+        
+        if (removed.count)
+        {
+            sdprintln(@"The following modules were removed:");
+            for (NSString *item in removed)
+                sdprintln(@"    %@", item);
+            sdprintln(@"");
+        }
+        
+        [[MODSpecModel sharedInstance] removeDependencyNamed:name];
+        [[MODSpecModel sharedInstance] saveSpecification];
+    }
 }
 
 - (void)printHelp
 {
-    sdprintln(@"usage: modulo update [<dependency name>] [--branch <branch>] [--verbose]");
+    sdprintln(@"usage: modulo update [<dependency name>] [--force] [--verbose]");
+    sdprintln(@"       module update");
     sdprintln(@"       modulo update --help");
+    sdprintln(@"");
+    sdprintln(@"--force");
+    sdprintln(@"    Ignores status of commits, changes, and stashes.  Removes anyway.");
 }
 
 - (NSString *)helpDescription

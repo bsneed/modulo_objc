@@ -191,28 +191,67 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return NO;
 }
 
-- (void)addDependency:(MODSpecModel *)dependency
+- (BOOL)addDependency:(MODSpecModel *)dependency
 {
+    BOOL result = NO;
     NSMutableArray *newDeps = [self.dependencies mutableCopy];
-    [newDeps addObject:dependency];
-    self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
+    if (!newDeps)
+        newDeps = [NSMutableArray array];
+    
+    // if it doesn't exist, add it.
+    if (![newDeps containsObject:dependency])
+    {
+        dependency.dependencies = nil;
+        dependency.dependenciesPath = nil;
+
+        [newDeps addObject:dependency];
+        
+        self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
+        result = YES;
+    }
+    else
+    {
+        // if it does, update it.
+        [self updateDependency:dependency];
+    }
+    
+    return result;
 }
 
-- (void)removeTopLevelDependencyNamed:(NSString *)name
+- (BOOL)updateDependency:(MODSpecModel *)dependency
 {
+    MODSpecModel *existing = [self dependencyNamed:dependency.name];
+    if (!existing)
+    {
+        // it doesn't exist, so just add it.
+        return [self addDependency:dependency];
+    }
+    
+    existing.moduleURL = dependency.moduleURL;
+    existing.sourcePath = dependency.sourcePath;
+    existing.initialBranch = dependency.initialBranch;
+    
+    return YES;
+}
+
+- (BOOL)removeDependencyNamed:(NSString *)name
+{
+    BOOL result = NO;
     NSMutableArray *newDeps = [self.dependencies mutableCopy];
     for (MODSpecModel *item in newDeps)
     {
         if ([item.name isEqualToString:name])
         {
             [newDeps removeObject:item];
+            result = YES;
             break;
         }
     }
     self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
+    return result;
 }
 
-- (MODSpecModel *)topLevelDependencyNamed:(NSString *)name
+- (MODSpecModel *)dependencyNamed:(NSString *)name
 {
     for (MODSpecModel *item in self.dependencies)
     {
@@ -223,55 +262,36 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return nil;
 }
 
-- (BOOL)dependsOn:(NSString *)name
+- (NSArray<NSString> *)namesThatDependOn:(NSString *)name
 {
-    BOOL result = NO;
+    NSMutableArray *names = [NSMutableArray array];
     
-    NSArray *deps = [self flatDependencyList];
-    if ([deps containsObject:name])
-        return YES;
-    
-    return result;
-}
-
-- (NSArray<NSString> *)topLevelNamesThatDependOn:(NSString *)name
-{
-    NSMutableArray *result = [NSMutableArray array];
+    MODSpecModel *dummy = [[MODSpecModel alloc] init];
+    dummy.name = name;
     
     for (MODSpecModel *item in self.dependencies)
     {
-        if ([item dependsOn:name])
-        {
-            [result addObject:item.name];
-        }
+        MODSpecModel *spec = [MODSpecModel instanceFromName:item.name];
+        if ([spec.dependencies containsObject:dummy])
+            [names addObject:item.name];
     }
     
-    if (result.count == 0)
-        return nil;
+    if (names.count)
+        return (NSArray<NSString> *)[NSArray arrayWithArray:names];
     
-    return (NSArray<NSString> *)[NSArray arrayWithArray:result];
+    return nil;
 }
 
-- (NSArray<NSString> *)flatDependencyList
+- (NSArray<NSString> *)dependencyNames
 {
-    NSMutableArray *result = [NSMutableArray array];
+    NSMutableArray *names = [NSMutableArray array];
     
-    [self _flatDependencyList:result];
-    
-    if (result.count == 0)
-        return nil;
-    
-    return (NSArray<NSString> *)[NSArray arrayWithArray:result];
-}
-
-- (void)_flatDependencyList:(NSMutableArray *)array
-{
     for (MODSpecModel *item in self.dependencies)
     {
-        if (![array containsObject:item.name])
-            [array addObject:item.name];
-        [item _flatDependencyList:array];
+        [names addObject:item.name];
     }
+    
+    return (NSArray<NSString> *)[NSArray arrayWithArray:names];
 }
 
 @end

@@ -14,16 +14,17 @@
 @interface MODProcessor : NSObject
 
 @property (nonatomic, assign) BOOL verbose;
-@property (nonatomic, readonly) NSString *startingDependencyName;
 @property (nonatomic, readonly) NSArray *addedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *removedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *updatedDependencies;
-@property (nonatomic, readonly) NSArray<NSString> *uncleanDependencies;
 
 + (instancetype)processor;
 
 - (BOOL)addDependencyWithModuleURL:(NSString *)moduleURL branch:(NSString *)branch;
 - (BOOL)removeDependencyNamed:(NSString *)name;
-- (BOOL)updateDependencNamed:(NSString *)name;
+- (BOOL)updateDependencyNames:(NSArray<NSString> *)names;
+
+- (NSArray<NSString> *)uncleanDependencies;
+- (NSArray<NSString> *)uncleanDependenciesForName:(NSString *)name;
 
 @end
