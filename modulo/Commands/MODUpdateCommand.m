@@ -77,7 +77,7 @@
         sderror(@"");
     }
     
-    BOOL success = [processor updateDependencyNames:nil];
+    BOOL success = [processor updateDependencyNames:(NSArray<NSString> *)names];
     if (!success)
     {
         sderror(@"An unknown error occurred attempting to remove %@.  See log for details.", name);

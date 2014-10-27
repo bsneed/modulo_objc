@@ -28,6 +28,7 @@
 		CAE0B81D19A1C1AF00E11FF8 /* MODSpecModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B81C19A1C1AF00E11FF8 /* MODSpecModel.m */; };
 		CAE0B82919A1C77100E11FF8 /* MODInitCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82819A1C77100E11FF8 /* MODInitCommand.m */; };
 		CAE0B82C19A269D500E11FF8 /* MODAddCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82B19A269D500E11FF8 /* MODAddCommand.m */; };
+		CAFB046419FE3E7B000E2E04 /* NSFileManager+MODExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CAFB046319FE3E7B000E2E04 /* NSFileManager+MODExtensions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -90,6 +91,8 @@
 		CAE0B82819A1C77100E11FF8 /* MODInitCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODInitCommand.m; sourceTree = "<group>"; };
 		CAE0B82A19A269D500E11FF8 /* MODAddCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODAddCommand.h; sourceTree = "<group>"; };
 		CAE0B82B19A269D500E11FF8 /* MODAddCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODAddCommand.m; sourceTree = "<group>"; };
+		CAFB046219FE3E7B000E2E04 /* NSFileManager+MODExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+MODExtensions.h"; sourceTree = "<group>"; };
+		CAFB046319FE3E7B000E2E04 /* NSFileManager+MODExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+MODExtensions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +173,8 @@
 			children = (
 				CA8A56DD19EDBB990053168E /* NSString+MODExtensions.h */,
 				CA8A56DE19EDBB990053168E /* NSString+MODExtensions.m */,
+				CAFB046219FE3E7B000E2E04 /* NSFileManager+MODExtensions.h */,
+				CAFB046319FE3E7B000E2E04 /* NSFileManager+MODExtensions.m */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -292,6 +297,7 @@
 				CA9AB675199F43F100108B45 /* MODSetCommand.m in Sources */,
 				CA6C006919DB2C4700803D48 /* MODUpdateCommand.m in Sources */,
 				CA9AB68E19A07C5500108B45 /* MODVersionCommand.m in Sources */,
+				CAFB046419FE3E7B000E2E04 /* NSFileManager+MODExtensions.m in Sources */,
 				CA44AFF6199E79CB00AE1A15 /* main.m in Sources */,
 				CA9AB672199F352000108B45 /* MODCommand.m in Sources */,
 				CA9AB69219A080C400108B45 /* MODHelpCommand.m in Sources */,

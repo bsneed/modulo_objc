@@ -213,6 +213,7 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     {
         // if it does, update it.
         [self updateDependency:dependency];
+        result = YES;
     }
     
     return result;

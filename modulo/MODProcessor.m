@@ -8,6 +8,7 @@
 
 #import "MODProcessor.h"
 #import "SDCommandLineParser.h"
+#import "NSFileManager+MODExtensions.h"
 
 @implementation MODProcessor
 {
@@ -242,22 +243,24 @@ completionLabel:
 
 - (NSInteger)runCommand:(NSString *)command parseBlock:(MODCommandParseBlock)parseBlock
 {
-    if (parseBlock)
-        command = [command stringByAppendingString:@" &> .modulo_temp.txt"];
-    
+    // lets print the command without the redirection stuff.
     if (self.verbose)
         sdprintln(@"Running: %@", command);
     
+    NSString *tempFile = [_fileManager temporaryFile];
+
+    if (parseBlock)
+        command = [command stringByAppendingFormat:@" &> %@", tempFile];
+    
     NSInteger status = system([command UTF8String]);
-    //NSInteger status = 0;
     
     if (parseBlock)
     {
-        NSString *outputString = [NSString stringWithContentsOfFile:@".modulo_temp.txt" encoding:NSUTF8StringEncoding error:nil];
+        NSString *outputString = [NSString stringWithContentsOfFile:tempFile encoding:NSUTF8StringEncoding error:nil];
         status = parseBlock(status, outputString);
         if (status != 0)
             sdprintln(outputString);
-        [_fileManager removeItemAtPath:@".modulo_temp.txt" error:nil];
+        [_fileManager removeItemAtPath:tempFile error:nil];
     }
     
     return status;
@@ -346,11 +349,10 @@ completionLabel:
     // get into our dependency dir
     [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
-    __block BOOL hasChanges = NO;
+    __block BOOL hasChanges = YES;
     NSInteger status = [self runCommand:@"git status" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
-        hasChanges = NO;
-        if ([outputString rangeOfString:@"nothing to commit"].location == NSNotFound)
-            hasChanges = YES;
+        if ([outputString rangeOfString:@"nothing to commit"].location != NSNotFound)
+            hasChanges = NO;
         return returnStatus;
     }];
     
@@ -446,7 +448,9 @@ completionLabel:
 
 - (BOOL)_updateDependencyNamed:(NSString *)name skipRemove:(BOOL)skipRemove
 {
-    BOOL result = NO;
+    BOOL result = YES;
+    
+    sdprintln(@"Updating %@...", name);
     
     NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
     
@@ -485,12 +489,12 @@ completionLabel:
     }
     
     // find out which deps have been added
-    NSMutableArray *addedNames = [updatedNames copy];
-    [updatedNames removeObjectsInArray:originalNames];
+    NSMutableArray *addedNames = [updatedNames mutableCopy];
+    [addedNames removeObjectsInArray:originalNames];
     
     // find out which deps have been removed.
-    NSMutableArray *removedNames = [originalNames copy];
-    [originalNames removeObjectsInArray:updatedNames];
+    NSMutableArray *removedNames = [originalNames mutableCopy];
+    [removedNames removeObjectsInArray:updatedNames];
     
     if (addedNames.count)
     {
