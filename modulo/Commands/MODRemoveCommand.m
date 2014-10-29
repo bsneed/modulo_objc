@@ -83,16 +83,16 @@
     }
     else
     {
-        NSArray *removed = processor.removedDependencies;
-        if (removed.count)
+        sdprintln(@"%@ was removed.\n", name);
+        NSArray *unused = processor.possiblyUnusedDependencies;
+        if (unused.count)
         {
-            sdprintln(@"The following modules were removed:");
-            for (NSString *item in removed)
+            sdprintln(@"The following modules may be unused and can possibly be removed:");
+            for (NSString *item in unused)
                 sdprintln(@"    %@", item);
             sdprintln(@"");
         }
         
-        [[MODSpecModel sharedInstance] removeDependencyNamed:name];
         [[MODSpecModel sharedInstance] saveSpecification];
     }
 }

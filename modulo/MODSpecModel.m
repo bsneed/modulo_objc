@@ -209,12 +209,12 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
         self.dependencies = (NSArray<MODSpecModel> *)[NSArray arrayWithArray:newDeps];
         result = YES;
     }
-    else
-    {
-        // if it does, update it.
-        [self updateDependency:dependency];
-        result = YES;
-    }
+//    else
+//    {
+//        // if it does, update it.
+//        [self updateDependency:dependency];
+//        result = YES;
+//    }
     
     return result;
 }
@@ -225,7 +225,7 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     if (!existing)
     {
         // it doesn't exist, so just add it.
-        return [self addDependency:dependency];
+        return NO;//[self addDependency:dependency];
     }
     
     existing.moduleURL = dependency.moduleURL;
@@ -287,9 +287,26 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
 {
     NSMutableArray *names = [NSMutableArray array];
     
-    for (MODSpecModel *item in self.dependencies)
+    // if we have them on this top-level spec, get'em.
+    if (self.dependencies)
     {
-        [names addObject:item.name];
+        for (MODSpecModel *item in self.dependencies)
+        {
+            [names addObject:item.name];
+        }
+    }
+    else
+    {
+        // if not, look at the spec for the module name.
+        MODSpecModel *spec = [MODSpecModel instanceFromName:self.name];
+        if (spec)
+        {
+            for (MODSpecModel *item in spec.dependencies)
+            {
+                [names addObject:item.name];
+            }
+        }
+        
     }
     
     return (NSArray<NSString> *)[NSArray arrayWithArray:names];

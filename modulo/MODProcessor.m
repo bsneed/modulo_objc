@@ -14,6 +14,7 @@
 {
     NSMutableArray *_addedDependencies;
     NSMutableArray *_removedDependencies;
+    NSMutableArray *_possiblyUnusedDependencies;
     NSMutableArray *_updatedDependencies;
     
     NSMutableArray *_itemsToBeRemoved;
@@ -35,6 +36,7 @@
     
     _addedDependencies = [NSMutableArray array];
     _removedDependencies = [NSMutableArray array];
+    _possiblyUnusedDependencies = [NSMutableArray array];
     _updatedDependencies = [NSMutableArray array];
     _itemsToBeRemoved = [NSMutableArray array];
     
@@ -53,6 +55,11 @@
 - (NSArray *)removedDependencies
 {
     return [NSArray arrayWithArray:_removedDependencies];
+}
+
+- (NSArray *)possiblyUnusedDependencies
+{
+    return [NSArray arrayWithArray:_possiblyUnusedDependencies];
 }
 
 - (NSArray *)updatedDependencies
@@ -160,11 +167,16 @@ completionLabel:
         if (![_addedDependencies containsObject:dependencyModel])
             [_addedDependencies addObject:dependencyModel];
     }
+    else
+    {
+        // it exists already, just update it.
+        [[MODSpecModel sharedInstance] updateDependency:dependencyModel];
+    }
     
     return result;
 }
 
-- (BOOL)removeDependencyNamed:(NSString *)name
+/*- (BOOL)removeDependencyNamed:(NSString *)name
 {
     BOOL result = YES;
 
@@ -209,6 +221,44 @@ completionLabel:
     }
     
     return result;
+}*/
+
+- (BOOL)removeDependencyNamed:(NSString *)name
+{
+    BOOL result = YES;
+    
+    MODSpecModel *existing = [[MODSpecModel sharedInstance] dependencyNamed:name];
+    if (!existing)
+        result = NO;
+    
+    if (result)
+    {
+        // get our depNames before we remove it.
+        NSArray<NSString> *names = [existing dependencyNames];
+        for (NSString *item in names)
+        {
+            if ([item isEqualToString:name])
+                continue;
+            
+            NSMutableArray *otherDeps = [[[MODSpecModel sharedInstance] namesThatDependOn:item] mutableCopy];
+            if (otherDeps)
+            {
+                [otherDeps removeObjectsInArray:names];
+                [otherDeps removeObject:name];
+                if (otherDeps.count)
+                    [_possiblyUnusedDependencies addObjectsFromArray:otherDeps];
+                else
+                    [_possiblyUnusedDependencies addObject:item];
+            }
+            else
+                [_possiblyUnusedDependencies addObject:item];
+            
+        }
+
+        [self _removeDependency:name];
+    }
+    
+    return result;
 }
 
 - (BOOL)updateDependencyNames:(NSArray<NSString> *)names
@@ -224,8 +274,9 @@ completionLabel:
     
     if (_itemsToBeRemoved.count)
     {
-        for (NSString *item in _itemsToBeRemoved)
-            [self removeDependencyNamed:item];
+        //for (NSString *item in _itemsToBeRemoved)
+        //    [self removeDependencyNamed:item];
+        [_possiblyUnusedDependencies addObjectsFromArray:_itemsToBeRemoved];
     }
     
     // sync our main project submodules if it's not a module.
@@ -423,7 +474,7 @@ completionLabel:
 
 - (void)_removeDependency:(NSString *)name
 {
-    NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
+    /*NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
 
     BOOL isLibrary = [dependencyLocalPath isLibraryPath];
     
@@ -442,7 +493,9 @@ completionLabel:
     }
     
     NSString *rmCommand = [NSString stringWithFormat:@"rm -rf %@", dependencyLocalPath];
-    [self runCommand:rmCommand];
+    [self runCommand:rmCommand];*/
+    
+    [[MODSpecModel sharedInstance] removeDependencyNamed:name];
     [_removedDependencies addObject:name];
 }
 

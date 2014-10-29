@@ -14,8 +14,9 @@
 @interface MODProcessor : NSObject
 
 @property (nonatomic, assign) BOOL verbose;
-@property (nonatomic, readonly) NSArray *addedDependencies;
+@property (nonatomic, readonly) NSArray<MODSpecModel> *addedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *removedDependencies;
+@property (nonatomic, readonly) NSArray<NSString> *possiblyUnusedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *updatedDependencies;
 
 + (instancetype)processor;

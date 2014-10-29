@@ -85,7 +85,7 @@
     else
     {
         NSArray *added = processor.addedDependencies;
-        NSArray *removed = processor.removedDependencies;
+        NSArray *unused = processor.possiblyUnusedDependencies;
         
         if (added.count)
         {
@@ -111,15 +111,14 @@
             sdprintln(@"");
         }
         
-        if (removed.count)
+        if (unused.count)
         {
-            sdprintln(@"The following modules were removed:");
-            for (NSString *item in removed)
+            sdprintln(@"The following modules may be unused and can possibly be removed:");
+            for (NSString *item in unused)
                 sdprintln(@"    %@", item);
             sdprintln(@"");
         }
         
-        [[MODSpecModel sharedInstance] removeDependencyNamed:name];
         [[MODSpecModel sharedInstance] saveSpecification];
     }
 }
