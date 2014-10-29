@@ -474,7 +474,7 @@ completionLabel:
 
 - (void)_removeDependency:(NSString *)name
 {
-    /*NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
+    NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
 
     BOOL isLibrary = [dependencyLocalPath isLibraryPath];
     
@@ -493,7 +493,7 @@ completionLabel:
     }
     
     NSString *rmCommand = [NSString stringWithFormat:@"rm -rf %@", dependencyLocalPath];
-    [self runCommand:rmCommand];*/
+    [self runCommand:rmCommand];
     
     [[MODSpecModel sharedInstance] removeDependencyNamed:name];
     [_removedDependencies addObject:name];
