@@ -16,6 +16,7 @@
     NSMutableArray *_removedDependencies;
     NSMutableArray *_possiblyUnusedDependencies;
     NSMutableArray *_updatedDependencies;
+    NSMutableArray *_unpushableBranches;
     
     NSMutableArray *_itemsToBeRemoved;
     
@@ -39,6 +40,7 @@
     _possiblyUnusedDependencies = [NSMutableArray array];
     _updatedDependencies = [NSMutableArray array];
     _itemsToBeRemoved = [NSMutableArray array];
+    _unpushableBranches = [NSMutableArray array];
     
     _fileManager = [NSFileManager defaultManager];
     
@@ -65,6 +67,11 @@
 - (NSArray *)updatedDependencies
 {
     return [NSArray arrayWithArray:_updatedDependencies];
+}
+
+- (NSArray *)unpushableBranches
+{
+    return [NSArray arrayWithArray:_unpushableBranches];
 }
 
 #pragma mark - Public Methods
@@ -176,53 +183,6 @@ completionLabel:
     return result;
 }
 
-/*- (BOOL)removeDependencyNamed:(NSString *)name
-{
-    BOOL result = YES;
-
-    MODSpecModel *existing = [[MODSpecModel sharedInstance] dependencyNamed:name];
-    if (!existing)
-        result = NO;
-
-    if (result)
-    {
-        NSArray<NSString> *names = [[MODSpecModel sharedInstance] dependencyNames];
-        NSMutableArray *namesToProcess = [NSMutableArray array];
-        
-        // add the main one we're working on to the list.
-        // we would have checked before getting here that no other top-levels depend on it.
-        [namesToProcess addObject:name];
-        
-        if (names)
-        {
-            // if something else depends on this sub-dep we've been asked to remove
-            // cycle through the other top level ones, and if they depend on it,
-            // remove it from our list of things to process.
-            for (NSString *item in names)
-            {
-                // skip our working name if we come across it.
-                if ([item isEqualToString:name])
-                    continue;
-                
-                NSArray *otherDepNames = [[MODSpecModel sharedInstance] namesThatDependOn:item];
-                if (!otherDepNames)
-                    [namesToProcess addObject:item];
-            }
-        }
-        
-        // now physically remove the ones in this list.
-        if (namesToProcess.count > 0)
-        {
-            for (NSString *item in namesToProcess)
-            {
-                [self _removeDependency:item];
-            }
-        }
-    }
-    
-    return result;
-}*/
-
 - (BOOL)removeDependencyNamed:(NSString *)name
 {
     BOOL result = YES;
@@ -285,6 +245,24 @@ completionLabel:
         NSInteger status = [self runCommand:@"git submodule sync"];
         if (status != 0)
             result = NO;
+    }
+    
+    return result;
+}
+
+- (BOOL)switchBranches:(NSString *)branchName
+{
+    BOOL result = YES;
+    
+    result = [self _switchName:nil toBranch:branchName];
+    
+    if (result)
+    {
+        NSArray<MODSpecModel> *dependencies = [MODSpecModel sharedInstance].dependencies;
+        for (MODSpecModel *item in dependencies)
+        {
+            result = [self _switchName:item.name toBranch:branchName];
+        }
     }
     
     return result;
@@ -424,11 +402,10 @@ completionLabel:
     [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
     
     __block BOOL hasPushAccess = NO;
-    NSInteger status = [self runCommand:@"git remote -v" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
-        hasPushAccess = NO;
-        if ([outputString rangeOfString:@"(push)"].location != NSNotFound)
+    NSInteger status = [self runCommand:@"git push --dry-run" parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+        if (![outputString containsString:@"Permission to"] && ![outputString containsString:@"denied to"])
             hasPushAccess = YES;
-        return returnStatus;
+        return 0;
     }];
     
     // get back home.
@@ -574,6 +551,108 @@ completionLabel:
             // put these names someplace so we can remove them later.
             [_itemsToBeRemoved addObjectsFromArray:removedNames];
         }
+    }
+    
+    return result;
+}
+
+- (BOOL)_switchName:(NSString *)name toBranch:(NSString *)branchName
+{
+    BOOL result = YES;
+    NSInteger status = 0;
+    
+    // if no name was specified, we're working on the main repo and not a dependency.
+    if (!name)
+    {
+        // change branches in the local repo.
+        
+        __block BOOL alreadyExists = NO;
+        NSString *command = [NSString stringWithFormat:@"git checkout -b %@", branchName];
+        status = [self runCommand:command parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+            if ([outputString containsString:@" already exists."])
+            {
+                alreadyExists = YES;
+                returnStatus = 0;
+            }
+            return returnStatus;
+        }];
+        
+        // it already exists, so try to just change to it.
+        if (alreadyExists)
+        {
+            NSString *newCommand = [NSString stringWithFormat:@"git checkout %@", branchName];
+            status = [self runCommand:newCommand parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+                if ([outputString containsString:@"Switched to branch"])
+                    returnStatus = 0;
+                else
+                    if ([outputString containsString:@"Already on"])
+                        returnStatus = 0;
+                    else
+                        sdprintln(outputString);
+                return returnStatus;
+            }];
+        }
+    }
+    else
+    {
+        // change branches on the specified module.
+        
+        if (![self hasPushAccessForName:name])
+        {
+            NSString *currentBranchName = [self currentBranchForName:name];
+            NSString *nameWithCurrentBranch = [NSString stringWithFormat:@"%@ (%@)", name, currentBranchName];
+            [_unpushableBranches addObject:nameWithCurrentBranch];
+            return result;
+        }
+        
+        NSString *dependencyLocalPath = [[MODSpecModel sharedInstance] dependencyLocalPathFromName:name];
+        
+        // get into our dependency dir
+        [_fileManager changeCurrentDirectoryPath:dependencyLocalPath];
+        
+        __block BOOL alreadyExists = NO;
+        NSString *command = [NSString stringWithFormat:@"git checkout -b %@", branchName];
+        status = [self runCommand:command parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+            if ([outputString containsString:@" already exists."])
+            {
+                alreadyExists = YES;
+                returnStatus = 0;
+            }
+            return returnStatus;
+        }];
+        
+        // it already exists, so try to just change to it.
+        if (alreadyExists)
+        {
+            NSString *newCommand = [NSString stringWithFormat:@"git checkout %@", branchName];
+            status = [self runCommand:newCommand parseBlock:^NSInteger(NSInteger returnStatus, NSString *outputString) {
+                if ([outputString containsString:@"Switched to branch"])
+                    returnStatus = 0;
+                else
+                    if ([outputString containsString:@"Already on"])
+                        returnStatus = 0;
+                    else
+                        sdprintln(outputString);
+                return returnStatus;
+            }];
+        }
+        
+        // get back home.
+        [_fileManager changeCurrentDirectoryPath:[SDCommandLineParser sharedInstance].startingWorkingPath];
+    }
+    
+    if (status != 0)
+    {
+        result = NO;
+        sdprintln(@"Unable to switch module %@ to branch %@.", name, branchName);
+        sderror(@"\nPlease fix the issue and re-run this command.  See log for details.");
+    }
+    else
+    {
+        if (!name)
+            sdprintln(@"Switched %@ to branch %@", [MODSpecModel sharedInstance].name, branchName);
+        else
+            sdprintln(@"Switched module %@ to branch %@", name, branchName);
     }
     
     return result;

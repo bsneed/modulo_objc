@@ -15,6 +15,8 @@
 #import "MODAddCommand.h"
 #import "MODRemoveCommand.h"
 #import "MODUpdateCommand.h"
+#import "MODBranchCommand.h"
+#import "MODListCommand.h"
 
 /*
  modulo branch <branch name> // switches master project and all deps to specified branch, creates if necessary.
@@ -32,6 +34,8 @@ int main(int argc, const char * argv[]) {
         MODAddCommand *addCommand = [MODAddCommand commandWithName:@"add" primary:YES];
         MODRemoveCommand *removeCommand = [MODRemoveCommand commandWithName:@"remove" primary:YES];
         MODUpdateCommand *updateCommand = [MODUpdateCommand commandWithName:@"update" primary:YES];
+        MODBranchCommand *branchCommand = [MODBranchCommand commandWithName:@"branch" primary:YES];
+        MODListCommand *listCommand = [MODListCommand commandWithName:@"list" primary:YES];
         
         SDCommandLineParser *commandLine = [SDCommandLineParser sharedInstance];
         [commandLine addSupportedCommands:(NSArray<SDCommand> *)@[initCommand,
@@ -40,7 +44,9 @@ int main(int argc, const char * argv[]) {
                                                                   helpCommand,
                                                                   addCommand,
                                                                   removeCommand,
-                                                                  updateCommand]];
+                                                                  updateCommand,
+                                                                  branchCommand,
+                                                                  listCommand]];
         
         // we wanna print this if we don't get any valid commands at all.
         commandLine.helpCommand = helpCommand;

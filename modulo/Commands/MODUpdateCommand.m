@@ -113,6 +113,17 @@
         
         if (unused.count)
         {
+            NSArray *topLevelNames = [[MODSpecModel sharedInstance] namesThatDependOn:name];
+            if (topLevelNames)
+            {
+                sdprintln(@"Unable to remove %@.\n\nThe following modules still depend on it:", name);
+                for (NSString *item in topLevelNames)
+                {
+                    sdprintln(@"    %@", item);
+                }
+                sderror(@"");
+            }
+
             sdprintln(@"The following modules may be unused and can possibly be removed:");
             for (NSString *item in unused)
                 sdprintln(@"    %@", item);

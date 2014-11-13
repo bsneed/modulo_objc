@@ -18,12 +18,14 @@
 @property (nonatomic, readonly) NSArray<NSString> *removedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *possiblyUnusedDependencies;
 @property (nonatomic, readonly) NSArray<NSString> *updatedDependencies;
+@property (nonatomic, readonly) NSArray<NSString> *unpushableBranches;
 
 + (instancetype)processor;
 
 - (BOOL)addDependencyWithModuleURL:(NSString *)moduleURL branch:(NSString *)branch;
 - (BOOL)removeDependencyNamed:(NSString *)name;
 - (BOOL)updateDependencyNames:(NSArray<NSString> *)names;
+- (BOOL)switchBranches:(NSString *)branchName;
 
 - (NSArray<NSString> *)uncleanDependencies;
 - (NSArray<NSString> *)uncleanDependenciesForName:(NSString *)name;
