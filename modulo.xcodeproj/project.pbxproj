@@ -7,6 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		224150F61A1A6845003EFB13 /* modulo_tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 224150F51A1A6845003EFB13 /* modulo_tests.m */; };
+		224150FB1A1A68B7003EFB13 /* MODProcessorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 224150FA1A1A68B7003EFB13 /* MODProcessorTest.m */; };
+		224150FC1A1A8B1A003EFB13 /* MODProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6C006519D9DA6B00803D48 /* MODProcessor.m */; };
+		224150FD1A1A8B29003EFB13 /* MODSpecModel.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B81C19A1C1AF00E11FF8 /* MODSpecModel.m */; };
+		224150FE1A1A8B2E003EFB13 /* SDCommandLineParser.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */; };
+		224150FF1A1A8B5C003EFB13 /* SDLog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68719A077DF00108B45 /* SDLog.m */; };
+		224151001A1A8B5C003EFB13 /* NSString+SDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68419A077BD00108B45 /* NSString+SDExtensions.m */; };
+		224151011A1A8B5C003EFB13 /* NSData+SDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68A19A0783E00108B45 /* NSData+SDExtensions.m */; };
+		224151021A1A8B5C003EFB13 /* NSDictionary+SDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68119A076CD00108B45 /* NSDictionary+SDExtensions.m */; };
+		224151031A1A8B5C003EFB13 /* NSObject+SDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB67E19A0768100108B45 /* NSObject+SDExtensions.m */; };
+		224151041A1A8B5C003EFB13 /* SDDataMap.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB67819A0763D00108B45 /* SDDataMap.m */; };
+		224151051A1A8B5C003EFB13 /* SDModelObject.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB67A19A0763D00108B45 /* SDModelObject.m */; };
+		224151061A1A8B67003EFB13 /* NSString+MODExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CA8A56DE19EDBB990053168E /* NSString+MODExtensions.m */; };
+		224151071A1A8B67003EFB13 /* NSFileManager+MODExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = CAFB046319FE3E7B000E2E04 /* NSFileManager+MODExtensions.m */; };
+		224151081A1A8B79003EFB13 /* MODCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB671199F352000108B45 /* MODCommand.m */; };
+		224151091A1A8B79003EFB13 /* MODVersionCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB68D19A07C5500108B45 /* MODVersionCommand.m */; };
+		2241510A1A1A8B79003EFB13 /* MODHelpCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB69119A080C400108B45 /* MODHelpCommand.m */; };
+		2241510B1A1A8B79003EFB13 /* MODSetCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA9AB674199F43F100108B45 /* MODSetCommand.m */; };
+		2241510C1A1A8B79003EFB13 /* MODInitCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82819A1C77100E11FF8 /* MODInitCommand.m */; };
+		2241510D1A1A8B79003EFB13 /* MODAddCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE0B82B19A269D500E11FF8 /* MODAddCommand.m */; };
+		2241510E1A1A8B79003EFB13 /* MODRemoveCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6C005E19D7456400803D48 /* MODRemoveCommand.m */; };
+		2241510F1A1A8B79003EFB13 /* MODUpdateCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6C006819DB2C4700803D48 /* MODUpdateCommand.m */; };
+		224151101A1A8B79003EFB13 /* MODBranchCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CAFB04661A00AB7E000E2E04 /* MODBranchCommand.m */; };
+		224151111A1A8B79003EFB13 /* MODListCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6B80EB1A080F6B00A77CF2 /* MODListCommand.m */; };
 		CA44AFF6199E79CB00AE1A15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFF5199E79CB00AE1A15 /* main.m */; };
 		CA44AFFE199E7B0300AE1A15 /* SDCommandLineParser.m in Sources */ = {isa = PBXBuildFile; fileRef = CA44AFFD199E7B0300AE1A15 /* SDCommandLineParser.m */; };
 		CA6B80EC1A080F6B00A77CF2 /* MODListCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6B80EB1A080F6B00A77CF2 /* MODListCommand.m */; };
@@ -47,6 +71,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		224150F11A1A6845003EFB13 /* modulo-tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "modulo-tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		224150F41A1A6845003EFB13 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		224150F51A1A6845003EFB13 /* modulo_tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = modulo_tests.m; sourceTree = "<group>"; };
+		224150FA1A1A68B7003EFB13 /* MODProcessorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODProcessorTest.m; sourceTree = "<group>"; };
 		CA44AFF2199E79CB00AE1A15 /* modulo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = modulo; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA44AFF5199E79CB00AE1A15 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CA44AFFC199E7B0300AE1A15 /* SDCommandLineParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDCommandLineParser.h; sourceTree = "<group>"; };
@@ -102,6 +130,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		224150EE1A1A6845003EFB13 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA44AFEF199E79CB00AE1A15 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -112,10 +147,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		224150F21A1A6845003EFB13 /* modulo-tests */ = {
+			isa = PBXGroup;
+			children = (
+				224150F51A1A6845003EFB13 /* modulo_tests.m */,
+				224150F31A1A6845003EFB13 /* Supporting Files */,
+				224150FA1A1A68B7003EFB13 /* MODProcessorTest.m */,
+			);
+			path = "modulo-tests";
+			sourceTree = "<group>";
+		};
+		224150F31A1A6845003EFB13 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				224150F41A1A6845003EFB13 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		CA44AFE9199E79CB00AE1A15 = {
 			isa = PBXGroup;
 			children = (
 				CA44AFF4199E79CB00AE1A15 /* modulo */,
+				224150F21A1A6845003EFB13 /* modulo-tests */,
 				CA44AFF3199E79CB00AE1A15 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -124,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				CA44AFF2199E79CB00AE1A15 /* modulo */,
+				224150F11A1A6845003EFB13 /* modulo-tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -245,6 +300,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		224150F01A1A6845003EFB13 /* modulo-tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224150F71A1A6845003EFB13 /* Build configuration list for PBXNativeTarget "modulo-tests" */;
+			buildPhases = (
+				224150ED1A1A6845003EFB13 /* Sources */,
+				224150EE1A1A6845003EFB13 /* Frameworks */,
+				224150EF1A1A6845003EFB13 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "modulo-tests";
+			productName = "modulo-tests";
+			productReference = 224150F11A1A6845003EFB13 /* modulo-tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CA44AFF1199E79CB00AE1A15 /* modulo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CA44AFF9199E79CB00AE1A15 /* Build configuration list for PBXNativeTarget "modulo" */;
@@ -271,6 +343,9 @@
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = SetDirection;
 				TargetAttributes = {
+					224150F01A1A6845003EFB13 = {
+						CreatedOnToolsVersion = 6.1;
+					};
 					CA44AFF1199E79CB00AE1A15 = {
 						CreatedOnToolsVersion = 6.0;
 					};
@@ -289,11 +364,53 @@
 			projectRoot = "";
 			targets = (
 				CA44AFF1199E79CB00AE1A15 /* modulo */,
+				224150F01A1A6845003EFB13 /* modulo-tests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		224150EF1A1A6845003EFB13 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		224150ED1A1A6845003EFB13 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2241510E1A1A8B79003EFB13 /* MODRemoveCommand.m in Sources */,
+				224151001A1A8B5C003EFB13 /* NSString+SDExtensions.m in Sources */,
+				224150FE1A1A8B2E003EFB13 /* SDCommandLineParser.m in Sources */,
+				2241510D1A1A8B79003EFB13 /* MODAddCommand.m in Sources */,
+				224151101A1A8B79003EFB13 /* MODBranchCommand.m in Sources */,
+				224150F61A1A6845003EFB13 /* modulo_tests.m in Sources */,
+				224151091A1A8B79003EFB13 /* MODVersionCommand.m in Sources */,
+				224151021A1A8B5C003EFB13 /* NSDictionary+SDExtensions.m in Sources */,
+				224150FD1A1A8B29003EFB13 /* MODSpecModel.m in Sources */,
+				224151081A1A8B79003EFB13 /* MODCommand.m in Sources */,
+				2241510B1A1A8B79003EFB13 /* MODSetCommand.m in Sources */,
+				2241510C1A1A8B79003EFB13 /* MODInitCommand.m in Sources */,
+				224151061A1A8B67003EFB13 /* NSString+MODExtensions.m in Sources */,
+				224151051A1A8B5C003EFB13 /* SDModelObject.m in Sources */,
+				224151111A1A8B79003EFB13 /* MODListCommand.m in Sources */,
+				224151041A1A8B5C003EFB13 /* SDDataMap.m in Sources */,
+				224150FF1A1A8B5C003EFB13 /* SDLog.m in Sources */,
+				224151071A1A8B67003EFB13 /* NSFileManager+MODExtensions.m in Sources */,
+				224151011A1A8B5C003EFB13 /* NSData+SDExtensions.m in Sources */,
+				2241510A1A1A8B79003EFB13 /* MODHelpCommand.m in Sources */,
+				224150FC1A1A8B1A003EFB13 /* MODProcessor.m in Sources */,
+				224151031A1A8B5C003EFB13 /* NSObject+SDExtensions.m in Sources */,
+				224150FB1A1A68B7003EFB13 /* MODProcessorTest.m in Sources */,
+				2241510F1A1A8B79003EFB13 /* MODUpdateCommand.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CA44AFEE199E79CB00AE1A15 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -327,6 +444,39 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		224150F81A1A6845003EFB13 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "modulo-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		224150F91A1A6845003EFB13 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "modulo-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		CA44AFF7199E79CB00AE1A15 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CA44B001199E84AB00AE1A15 /* Project-Debug.xcconfig */;
@@ -407,6 +557,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CA44B001199E84AB00AE1A15 /* Project-Debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -422,6 +573,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		224150F71A1A6845003EFB13 /* Build configuration list for PBXNativeTarget "modulo-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224150F81A1A6845003EFB13 /* Debug */,
+				224150F91A1A6845003EFB13 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		CA44AFED199E79CB00AE1A15 /* Build configuration list for PBXProject "modulo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
