@@ -24,6 +24,8 @@ actual_test_dir = ''
 # Utilities
 
 def setup(temp_dir):
+    global actual_test_dir
+    
     # Clean up leftovers
     if os.path.exists(temp_dir):
         print "Deleting the test directory that already exists at " + temp_dir
@@ -34,6 +36,14 @@ def setup(temp_dir):
     os.mkdir(temp_dir)
     print "Changing to the test directory at " + temp_dir
     os.chdir(temp_dir)
+    
+    # Read the current dir as the temp dir path can be different on filesystem
+    actual_test_dir = os.getcwd()
+    print "Actual test directory path: " + actual_test_dir
+    
+    # Initialize an empty git repo
+    print " Creating empty git repo at " + actual_test_dir
+    subprocess.call(['git', 'init'])
 
 def tear_down(temp_dir):
     # Delete the temporary directory tree
@@ -42,18 +52,27 @@ def tear_down(temp_dir):
     shutil.rmtree(temp_dir)
 
 def execute_test(test_args):
+    # Get the name of the calling test function
+    test_name = sys._getframe().f_back.f_code.co_name
+    
     print
-    print "Executing test: " + sys._getframe().f_back.f_code.co_name
+    print "Preparing to execute test: " + test_name
+    
+    # Construct the command
     test_args.insert(0, MODULO_PATH)
-    # command = MODULO_PATH + ' ' + test_args
     print "Command is: '" + ' '.join(test_args) + "'"
+    
+    # Execute the test on the command line
     test_output = ''
     try:
         test_output = subprocess.check_output(test_args)
     except subprocess.CalledProcessError as call_error:
-        print "****Error in test " + test_name + ". Return code: " + call_error.returncode
-        print "    Return code: " + call_error.returncode
-        print "    Output: " + call_error.output
+        print '***'
+        print "Error in test: " + test_name
+        print "Return code: %d" % call_error.returncode
+        print "Error output: " + call_error.output
+        print '***'
+        test_output = call_error.output
 
     return test_output
 
@@ -71,7 +90,15 @@ def compare_content(actual, expected, content_type):
         return False
 
 def compare_file_content(filename, expected):
-    file = open(filename, 'r')
+    try:
+        file = open(filename, 'r')
+    except IOError as error:
+        print '***'
+        print "Error in opening file: " + filename
+        print "Error string: " + error.strerror
+        print '***'
+        return False
+        
     file_content = ''.join(file.readlines())
     return compare_content(file_content, expected, expected_results.MODULO_SPEC_FILENAME)
 
@@ -101,6 +128,7 @@ def test_default():
 
 def test_init():
     global actual_test_dir
+    
     output = execute_test(['init'])
     expected = expected_results.MODULO_INIT_OUTPUT_PREFIX + actual_test_dir + '\n'
     passed = compare_content(output, expected, 'output')
@@ -108,6 +136,23 @@ def test_init():
         passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME)
         if passed:
             passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_INIT_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
+def test_list_default():
+    global actual_test_dir
+    
+    output = execute_test(['list'])
+    expected = os.path.basename(actual_test_dir) + expected_results.MODULO_DEFAULT_LIST_OUTPUT_SUFFIX + '\n'
+    passed = compare_content(output, expected, 'output')
+    update_test_stats(passed)
+
+def test_add_dependency():
+    global actual_test_dir
+    
+    output = execute_test(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
+    passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir('dependencies')
+    if passed:
+        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT)
     update_test_stats(passed)
 
 # Main
@@ -119,11 +164,8 @@ if __name__ == "__main__":
     start_dir = os.getcwd()
     setup(TEST_DIR_PATH)
     
-    # Read the current dir as the temp dir path can be different on filesystem
-    actual_test_dir = os.getcwd()
-    
-    # Set up tests
-    all_tests = (test_default, test_init)
+    # Set up tests. The ordering is important to the expected results.
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency)
     total_tests = len(all_tests)
     
     # Execute tests

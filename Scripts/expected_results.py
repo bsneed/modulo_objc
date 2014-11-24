@@ -32,3 +32,17 @@ MODULO_ADD_DEFAULT_OUTPUT = """usage: modulo add <git repo url> [--branch <branc
        modulo add --help
 """
 MODULO_ADD_GIT_REPO_URL = 'git@github.com:setdirection/SDActivityHUD.git'
+MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT = """{
+  "name" : "modulo-tests",
+  "dependencies" : [
+    {
+      "name" : "SDActivityHUD",
+      "moduleURL" : "git@github.com:setdirection\/SDActivityHUD.git"
+    }
+  ],
+  "dependenciesPath" : "dependencies"
+}"""
+
+# List
+MODULO_DEFAULT_LIST_OUTPUT_SUFFIX = ' has no dependencies.'
+
