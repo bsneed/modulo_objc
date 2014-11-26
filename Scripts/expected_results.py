@@ -5,6 +5,7 @@
 
 # Constants and filenames
 MODULO_SPEC_FILENAME = 'modulo.spec'
+MODULO_DEPENDENCIES_PATH = 'dependencies'
 
 # Default / Help
 MODULO_DEFAULT_OUTPUT = """usage: modulo [--version] [--help] 
@@ -39,6 +40,22 @@ MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT = """{
       "name" : "SDActivityHUD",
       "moduleURL" : "git@github.com:setdirection\/SDActivityHUD.git"
     }
+  ],
+  "dependenciesPath" : "dependencies"
+}"""
+
+# Remove
+MODULO_REMOVE_DEPENDENCY_NAME = 'SDActivityHUD'
+MODULO_REMOVE_OUTPUT = """Cleared directory 'dependencies/SDActivityHUD'
+Submodule 'dependencies/SDActivityHUD' (git@github.com:setdirection/SDActivityHUD.git) unregistered for path 'dependencies/SDActivityHUD'
+rm 'dependencies/SDActivityHUD'
+SDActivityHUD was removed.
+
+"""
+MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT = """{
+  "name" : "modulo-tests",
+  "dependencies" : [
+
   ],
   "dependenciesPath" : "dependencies"
 }"""

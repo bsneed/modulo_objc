@@ -150,9 +150,18 @@ def test_add_dependency():
     global actual_test_dir
     
     output = execute_test(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
-    passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir('dependencies')
+    passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir(expected_results.MODULO_DEPENDENCIES_PATH)
     if passed:
         passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
+def test_remove_dependency():
+    global actual_test_dir
+    
+    output = execute_test(['remove', expected_results.MODULO_REMOVE_DEPENDENCY_NAME])
+    passed = compare_content(output, expected_results.MODULO_REMOVE_OUTPUT, 'output')
+    if passed:
+        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT)
     update_test_stats(passed)
 
 # Main
@@ -165,7 +174,7 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency)
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency)
     total_tests = len(all_tests)
     
     # Execute tests
