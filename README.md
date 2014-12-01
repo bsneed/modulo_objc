@@ -96,4 +96,12 @@ Add a dependency to user project.
 
 WIP.
 
+Tests
+=====
+
+Modulo can be tested using scripts in the [Scripts](Scripts/) folder.
+
+At this time, there is only one script that tests a variety of commands. It can be found at [`tests.py`](Scripts/tests.py).
+It requires a working network connection as it clones and updates test repos hosted on Github. In order to use it, place the `modulo` executable to be tested at `/tmp/modulo` on your test machine and execute the script from the command line.
+Currently some later tests may depend on previous ones completing successfully. This is not ideal but can be refactored as needed in the future.
 
