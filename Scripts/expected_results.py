@@ -109,4 +109,11 @@ MODULO_DEPENDENCY_SPEC_FILENAME = "dependencies/" + MODULO_UPDATE_DEPENDENCY_NAM
 
 # List
 MODULO_DEFAULT_LIST_OUTPUT_SUFFIX = ' has no dependencies.'
+MODULO_LIST_REMOVE_DEPENDENCY_NAME = 'SDUmbrella'
+MODULO_LIST_OUTPUT = """modulo-tests depends on the following modules:
 
+    SDFoundation  at dependencies/SDFoundation/SDFoundation
+    ios-shared    at dependencies/ios-shared/ios-shared
+    SDDataMap     at dependencies/SDDataMap/SDDataMap
+    SDWebService  at dependencies/SDWebService/SDWebService
+"""

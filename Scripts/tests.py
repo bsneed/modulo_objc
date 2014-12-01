@@ -234,6 +234,12 @@ def test_update_dependency():
         print "*** Error in the clone"
     update_test_stats(passed)
 
+def test_list():
+    output = execute_modulo(['remove', expected_results.MODULO_LIST_REMOVE_DEPENDENCY_NAME], False)
+    output = execute_modulo(['list'])
+    passed = compare_content(output, expected_results.MODULO_LIST_OUTPUT, 'output')
+    update_test_stats(passed)
+
 # Main
 if __name__ == "__main__":
     if not os.path.exists(MODULO_PATH):
@@ -244,7 +250,7 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency, test_update_dependency)
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency, test_update_dependency, test_list)
     total_tests = len(all_tests)
     
     # Execute tests
