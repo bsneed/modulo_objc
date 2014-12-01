@@ -60,6 +60,53 @@ MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT = """{
   "dependenciesPath" : "dependencies"
 }"""
 
+# Update
+MODULO_UPDATE_START_GIT_REPO_URL = 'git@github.com:setdirection/SDUmbrella.git'
+MODULO_UPDATE_DEPENDENCY_GIT_REPO_URL = 'git@github.com:setdirection/SDDataMap.git'
+MODULO_UPDATE_DEPENDENCY_OUTPUT = """"""
+MODULO_UPDATE_DEPENDENCY_NAME = 'SDDataMap'
+MODULO_UPDATE_DEPENDENCY_CASE_ONE_SPEC_CONTENT = """{
+  "name" : "SDDataMap",
+  "dependencies" : [
+    {
+      "name" : "SDFoundation",
+      "dependenciesPath" : "..\/",
+      "initialBranch" : "master",
+      "moduleURL" : "git@github.com:setdirection\/SDFoundation.git",
+      "sourcePath" : "SDFoundation"
+    }
+  ],
+  "dependenciesPath" : "..\/",
+  "initialBranch" : "master",
+  "moduleURL" : "git@github.com:setdirection\/SDDataMap.git",
+  "sourcePath" : "SDDataMap"
+}
+"""
+MODULO_UPDATE_DEPENDENCY_CASE_TWO_SPEC_CONTENT = """"{
+  "name" : "SDDataMap",
+  "dependencies" : [
+    {
+      "name" : "SDFoundation",
+      "dependenciesPath" : "..\/",
+      "initialBranch" : "master",
+      "moduleURL" : "git@github.com:setdirection\/SDFoundation.git",
+      "sourcePath" : "SDFoundation"
+    },
+    {
+      "name" : "ios-shared",
+      "initialBranch" : "master",
+      "sourcePath" : "Source",
+      "moduleURL" : "git@github.com:setdirection\/ios-shared.git"
+    }
+  ],
+  "dependenciesPath" : "..\/",
+  "initialBranch" : "master",
+  "moduleURL" : "git@github.com:setdirection\/SDDataMap.git",
+  "sourcePath" : "SDDataMap"
+}
+"""
+MODULO_DEPENDENCY_SPEC_FILENAME = "dependencies/" + MODULO_UPDATE_DEPENDENCY_NAME + "/" + MODULO_SPEC_FILENAME
+
 # List
 MODULO_DEFAULT_LIST_OUTPUT_SUFFIX = ' has no dependencies.'
 

@@ -42,7 +42,7 @@ def setup(temp_dir):
     print "Actual test directory path: " + actual_test_dir
     
     # Initialize an empty git repo
-    print " Creating empty git repo at " + actual_test_dir
+    print "Creating empty git repo at " + actual_test_dir
     subprocess.call(['git', 'init'])
 
 def tear_down(temp_dir):
@@ -51,21 +51,24 @@ def tear_down(temp_dir):
     print "Deleting the test directory at " + temp_dir
     shutil.rmtree(temp_dir)
 
-def execute_test(test_args):
+def execute_modulo(args, test_command = True):
     # Get the name of the calling test function
     test_name = sys._getframe().f_back.f_code.co_name
     
     print
-    print "Preparing to execute test: " + test_name
+    if test_command:
+        print "Preparing to execute test: " + test_name
+    else:
+        print "Setting up for test: " + test_name
     
     # Construct the command
-    test_args.insert(0, MODULO_PATH)
-    print "Command is: '" + ' '.join(test_args) + "'"
+    args.insert(0, MODULO_PATH)
+    print "Command is: '" + ' '.join(args) + "'"
     
     # Execute the test on the command line
     test_output = ''
     try:
-        test_output = subprocess.check_output(test_args)
+        test_output = subprocess.check_output(args)
     except subprocess.CalledProcessError as call_error:
         print '***'
         print "Error in test: " + test_name
@@ -81,12 +84,13 @@ def print_failure(actual, expected):
         print "Expected:\n" + expected
         # print "Diff:\n" + ''.join(difflib.ndiff([expected], [actual]))
 
-def compare_content(actual, expected, content_type):
+def compare_content(actual, expected, content_type, show_diff_on_fail = True):
     print "Comparing " + content_type
     if actual == expected:
         return True
     else:
-        print_failure(actual, expected)
+        if show_diff_on_fail:
+            print_failure(actual, expected)
         return False
 
 def compare_file_content(filename, expected):
@@ -100,6 +104,7 @@ def compare_file_content(filename, expected):
         return False
         
     file_content = ''.join(file.readlines())
+    file.close()
     return compare_content(file_content, expected, expected_results.MODULO_SPEC_FILENAME)
 
 def update_test_stats(passed):
@@ -122,14 +127,14 @@ def print_stats():
 # Tests
 
 def test_default():
-    output = execute_test([])
+    output = execute_modulo([])
     passed = compare_content(output, expected_results.MODULO_DEFAULT_OUTPUT, 'output')
     update_test_stats(passed)
 
 def test_init():
     global actual_test_dir
     
-    output = execute_test(['init'])
+    output = execute_modulo(['init'])
     expected = expected_results.MODULO_INIT_OUTPUT_PREFIX + actual_test_dir + '\n'
     passed = compare_content(output, expected, 'output')
     if passed:
@@ -141,27 +146,92 @@ def test_init():
 def test_list_default():
     global actual_test_dir
     
-    output = execute_test(['list'])
+    output = execute_modulo(['list'])
     expected = os.path.basename(actual_test_dir) + expected_results.MODULO_DEFAULT_LIST_OUTPUT_SUFFIX + '\n'
     passed = compare_content(output, expected, 'output')
     update_test_stats(passed)
 
 def test_add_dependency():
-    global actual_test_dir
-    
-    output = execute_test(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
+    output = execute_modulo(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
     passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir(expected_results.MODULO_DEPENDENCIES_PATH)
     if passed:
         passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT)
     update_test_stats(passed)
 
 def test_remove_dependency():
-    global actual_test_dir
-    
-    output = execute_test(['remove', expected_results.MODULO_REMOVE_DEPENDENCY_NAME])
+    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_DEPENDENCY_NAME])
     passed = compare_content(output, expected_results.MODULO_REMOVE_OUTPUT, 'output')
     if passed:
         passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
+def update_dependency_via_clone():
+    global actual_test_dir
+    
+    # Clone the dependency git repo
+    print "Cloning " + expected_results.MODULO_UPDATE_DEPENDENCY_GIT_REPO_URL
+    subprocess.call(['git', 'clone', expected_results.MODULO_UPDATE_DEPENDENCY_GIT_REPO_URL])
+    
+    # Read in the current spec file for this dependency to compare with fresh clone
+    current_dependency_spec_file = open(expected_results.MODULO_DEPENDENCY_SPEC_FILENAME, 'r')
+    current_dependency_spec_file_content = ''.join(current_dependency_spec_file.readlines())
+    current_dependency_spec_file.close()
+    
+    fresh_clone_dir_path = expected_results.MODULO_UPDATE_DEPENDENCY_NAME + '/'
+    fresh_clone_spec_file_path =  fresh_clone_dir_path + expected_results.MODULO_SPEC_FILENAME
+    fresh_clone_spec_file = open(fresh_clone_spec_file_path, 'r')
+    fresh_clone_spec_file_content = ''.join(fresh_clone_spec_file.readlines())
+    fresh_clone_spec_file.close()
+    
+    # Sanity checks
+    passed = compare_content(fresh_clone_spec_file_content, current_dependency_spec_file_content, 'initial state')
+    if passed:
+        case_one = compare_content(current_dependency_spec_file_content, expected_results.MODULO_UPDATE_DEPENDENCY_CASE_ONE_SPEC_CONTENT, 'case one', False)
+        case_two = compare_content(current_dependency_spec_file_content, expected_results.MODULO_UPDATE_DEPENDENCY_CASE_TWO_SPEC_CONTENT, 'case two', False)
+        
+        passed = case_one != case_two
+        
+        if passed:
+            updated_spec = ''
+            if case_one:
+                print "Updating for case one"
+                updated_spec = expected_results.MODULO_UPDATE_DEPENDENCY_CASE_TWO_SPEC_CONTENT
+            
+            if case_two:
+                print "Updating for case two"
+                updated_spec = expected_results.MODULO_UPDATE_DEPENDENCY_CASE_ONE_SPEC_CONTENT
+            
+            # Update the clone repo with new spec
+            os.chdir(fresh_clone_dir_path)
+            
+            print 'Updating dependency spec file in fresh clone'
+            spec_file = open(expected_results.MODULO_SPEC_FILENAME, 'w')
+            spec_file.write(updated_spec)
+            spec_file.close()
+            
+            print "Executing git commands to modify dependency in " + os.getcwd()
+            subprocess.call(['git', 'add', '.'])
+            subprocess.call(['git', 'commit', '-m', 'Updated modulo.spec from test.'])
+            subprocess.call(['git', 'push', 'origin', 'master'])
+            
+            # Return to working dir and delete the fresh clone
+            os.chdir(actual_test_dir)
+            print "Deleting tree at " + fresh_clone_dir_path
+            shutil.rmtree(fresh_clone_dir_path)
+            
+            return (True, updated_spec)
+    return (False, '')
+
+def test_update_dependency():
+    output = execute_modulo(['add', expected_results.MODULO_UPDATE_START_GIT_REPO_URL], False)
+    # Update one of the dependencies via a separate clone
+    (clone_passed, spec_after_update) = update_dependency_via_clone()
+    passed = clone_passed
+    if passed:
+        output = execute_modulo(['update'])
+        passed = compare_file_content(expected_results.MODULO_DEPENDENCY_SPEC_FILENAME, spec_after_update)
+    else:
+        print "*** Error in the clone"
     update_test_stats(passed)
 
 # Main
@@ -174,7 +244,7 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency)
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency, test_update_dependency)
     total_tests = len(all_tests)
     
     # Execute tests
