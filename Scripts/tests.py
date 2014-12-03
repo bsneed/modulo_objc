@@ -103,7 +103,7 @@ def compare_file_content(filename, expected):
         print '***'
         return False
         
-    file_content = ''.join(file.readlines())
+    file_content = file.read()
     file.close()
     return compare_content(file_content, expected, expected_results.MODULO_SPEC_FILENAME)
 
@@ -174,13 +174,13 @@ def update_dependency_via_clone():
     
     # Read in the current spec file for this dependency to compare with fresh clone
     current_dependency_spec_file = open(expected_results.MODULO_DEPENDENCY_SPEC_FILENAME, 'r')
-    current_dependency_spec_file_content = ''.join(current_dependency_spec_file.readlines())
+    current_dependency_spec_file_content = current_dependency_spec_file.read()
     current_dependency_spec_file.close()
     
     fresh_clone_dir_path = expected_results.MODULO_UPDATE_DEPENDENCY_NAME + '/'
     fresh_clone_spec_file_path =  fresh_clone_dir_path + expected_results.MODULO_SPEC_FILENAME
     fresh_clone_spec_file = open(fresh_clone_spec_file_path, 'r')
-    fresh_clone_spec_file_content = ''.join(fresh_clone_spec_file.readlines())
+    fresh_clone_spec_file_content = fresh_clone_spec_file.read()
     fresh_clone_spec_file.close()
     
     # Sanity checks
