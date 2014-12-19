@@ -56,7 +56,8 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     dispatch_once(&onceToken, ^{
         __sharedInstance = [[MODSpecModel alloc] init];
         __sharedInstance.pathToModel = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.spec"];
-        [__sharedInstance loadSpecification];
+        if (![__sharedInstance loadSpecification])
+            sderror(@"Unable to load %@", __sharedInstance.pathToModel);
     });
     
     return __sharedInstance;
@@ -69,7 +70,9 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     
     MODSpecModel *specModel = [[MODSpecModel alloc] init];
     specModel.pathToModel = path;
-    [specModel loadSpecification];
+    if (![specModel loadSpecification])
+        sderror(@"Unable to load %@", path);
+
     return specModel;
 }
 
@@ -175,9 +178,14 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     return result;
 }
 
-- (NSString *)description
+- (NSString *)debugDescription
 {
-    return self.name;
+    return @"Hello";
+}
+
+- (NSUInteger)hash
+{
+    return self.name.hash;
 }
 
 - (BOOL)isEqual:(id)object
