@@ -32,24 +32,37 @@ MODULO_INIT_SPEC_FILE_CONTENT = """{
 MODULO_ADD_DEFAULT_OUTPUT = """usage: modulo add <git repo url> [--branch <branch>] [--verbose]
        modulo add --help
 """
-MODULO_ADD_GIT_REPO_URL = 'git@github.com:setdirection/SDActivityHUD.git'
+MODULO_ADD_GIT_REPO_URL = 'git@github.com:setdirection/SDFoundation.git'
 MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT = """{
   "name" : "modulo-tests",
   "dependencies" : [
     {
-      "name" : "SDActivityHUD",
-      "moduleURL" : "git@github.com:setdirection\/SDActivityHUD.git"
+      "name" : "SDFoundation",
+      "initialBranch" : "master",
+      "sourcePath" : "SDFoundation",
+      "moduleURL" : "git@github.com:setdirection\/SDFoundation.git"
     }
   ],
   "dependenciesPath" : "dependencies"
 }"""
 
+# Branch
+MODULO_BRANCH_NAME = 'awesome'
+MODULO_BRANCH_SWITCH_OUTPUT = """Switched modulo-tests to branch awesome
+Switched module SDFoundation to branch awesome
+
+"""
+MODULO_BRANCH_DEPENDENCY_REPO_FOLDER = 'dependencies/SDFoundation'
+MODULO_BRANCH_EXAMPLE_STATUS = """On branch awesome
+nothing to commit, working directory clean
+"""
+
 # Remove
-MODULO_REMOVE_DEPENDENCY_NAME = 'SDActivityHUD'
-MODULO_REMOVE_OUTPUT = """Cleared directory 'dependencies/SDActivityHUD'
-Submodule 'dependencies/SDActivityHUD' (git@github.com:setdirection/SDActivityHUD.git) unregistered for path 'dependencies/SDActivityHUD'
-rm 'dependencies/SDActivityHUD'
-SDActivityHUD was removed.
+MODULO_REMOVE_DEPENDENCY_NAME = 'SDFoundation'
+MODULO_REMOVE_OUTPUT = """Cleared directory 'dependencies/SDFoundation'
+Submodule 'dependencies/SDFoundation' (git@github.com:setdirection/SDFoundation.git) unregistered for path 'dependencies/SDFoundation'
+rm 'dependencies/SDFoundation'
+SDFoundation was removed.
 
 """
 MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT = """{
@@ -82,7 +95,7 @@ MODULO_UPDATE_DEPENDENCY_CASE_ONE_SPEC_CONTENT = """{
   "sourcePath" : "SDDataMap"
 }
 """
-MODULO_UPDATE_DEPENDENCY_CASE_TWO_SPEC_CONTENT = """"{
+MODULO_UPDATE_DEPENDENCY_CASE_TWO_SPEC_CONTENT = """{
   "name" : "SDDataMap",
   "dependencies" : [
     {
@@ -117,3 +130,6 @@ MODULO_LIST_OUTPUT = """modulo-tests depends on the following modules:
     SDDataMap     at dependencies/SDDataMap/SDDataMap
     SDWebService  at dependencies/SDWebService/SDWebService
 """
+
+
+

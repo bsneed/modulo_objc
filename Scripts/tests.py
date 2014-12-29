@@ -124,46 +124,7 @@ def print_stats():
     print "Tests passed    = %d" % total_tests_passed
     print "Tests failed    = %d" % total_tests_failed
 
-# Tests
-
-def test_default():
-    output = execute_modulo([])
-    passed = compare_content(output, expected_results.MODULO_DEFAULT_OUTPUT, 'output')
-    update_test_stats(passed)
-
-def test_init():
-    global actual_test_dir
-    
-    output = execute_modulo(['init'])
-    expected = expected_results.MODULO_INIT_OUTPUT_PREFIX + actual_test_dir + '\n'
-    passed = compare_content(output, expected, 'output')
-    if passed:
-        passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME)
-        if passed:
-            passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_INIT_SPEC_FILE_CONTENT)
-    update_test_stats(passed)
-
-def test_list_default():
-    global actual_test_dir
-    
-    output = execute_modulo(['list'])
-    expected = os.path.basename(actual_test_dir) + expected_results.MODULO_DEFAULT_LIST_OUTPUT_SUFFIX + '\n'
-    passed = compare_content(output, expected, 'output')
-    update_test_stats(passed)
-
-def test_add_dependency():
-    output = execute_modulo(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
-    passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir(expected_results.MODULO_DEPENDENCIES_PATH)
-    if passed:
-        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT)
-    update_test_stats(passed)
-
-def test_remove_dependency():
-    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_DEPENDENCY_NAME])
-    passed = compare_content(output, expected_results.MODULO_REMOVE_OUTPUT, 'output')
-    if passed:
-        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT)
-    update_test_stats(passed)
+# Utilities
 
 def update_dependency_via_clone():
     global actual_test_dir
@@ -222,6 +183,59 @@ def update_dependency_via_clone():
             return (True, updated_spec)
     return (False, '')
 
+# Tests
+
+def test_default():
+    output = execute_modulo([])
+    passed = compare_content(output, expected_results.MODULO_DEFAULT_OUTPUT, 'output')
+    update_test_stats(passed)
+
+def test_init():
+    global actual_test_dir
+    
+    output = execute_modulo(['init'])
+    expected = expected_results.MODULO_INIT_OUTPUT_PREFIX + actual_test_dir + '\n'
+    passed = compare_content(output, expected, 'output')
+    if passed:
+        passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME)
+        if passed:
+            passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_INIT_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
+def test_list_default():
+    global actual_test_dir
+    
+    output = execute_modulo(['list'])
+    expected = os.path.basename(actual_test_dir) + expected_results.MODULO_DEFAULT_LIST_OUTPUT_SUFFIX + '\n'
+    passed = compare_content(output, expected, 'output')
+    update_test_stats(passed)
+
+def test_add_dependency():
+    output = execute_modulo(['add', expected_results.MODULO_ADD_GIT_REPO_URL])
+    passed = os.path.exists(expected_results.MODULO_SPEC_FILENAME) and os.path.isdir(expected_results.MODULO_DEPENDENCIES_PATH)
+    if passed:
+        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_ADD_DEPENDENCY_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
+def test_branch():
+    global actual_test_dir
+    
+    output = execute_modulo(['branch', 'awesome'])
+    passed = compare_content(output, expected_results.MODULO_BRANCH_SWITCH_OUTPUT, 'output')
+    if passed:
+        os.chdir(expected_results.MODULO_BRANCH_DEPENDENCY_REPO_FOLDER)
+        output = subprocess.check_output(['git', 'status'])
+        os.chdir(actual_test_dir)
+        passed = compare_content(output, expected_results.MODULO_BRANCH_EXAMPLE_STATUS, 'output')
+    update_test_stats(passed)
+
+def test_remove_dependency():
+    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_DEPENDENCY_NAME])
+    passed = compare_content(output, expected_results.MODULO_REMOVE_OUTPUT, 'output')
+    if passed:
+        passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT)
+    update_test_stats(passed)
+
 def test_update_dependency():
     output = execute_modulo(['add', expected_results.MODULO_UPDATE_START_GIT_REPO_URL], False)
     # Update one of the dependencies via a separate clone
@@ -250,7 +264,7 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_remove_dependency, test_update_dependency, test_list)
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_update_dependency, test_list)
     total_tests = len(all_tests)
     
     # Execute tests
