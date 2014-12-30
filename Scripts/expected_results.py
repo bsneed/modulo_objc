@@ -73,6 +73,16 @@ MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT = """{
   "dependenciesPath" : "dependencies"
 }"""
 
+# Remove Failure
+MODULO_REMOVE_FAILURE_ONE_GIT_REPO_URL = 'git@github.com:setdirection/SDDataMap.git'
+MODULO_REMOVE_FAILURE_ONE_DEPENDENCY_NAME = 'SDFoundation'
+MODULO_REMOVE_FAILURE_ONE_OUTPUT = """Unable to remove SDFoundation.
+
+The following modules still depend on it:
+    SDDataMap
+
+"""
+
 # Update
 MODULO_UPDATE_START_GIT_REPO_URL = 'git@github.com:setdirection/SDUmbrella.git'
 MODULO_UPDATE_DEPENDENCY_GIT_REPO_URL = 'git@github.com:setdirection/SDDataMap.git'

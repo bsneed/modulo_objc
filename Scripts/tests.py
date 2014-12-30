@@ -51,7 +51,7 @@ def tear_down(temp_dir):
     print "Deleting the test directory at " + temp_dir
     shutil.rmtree(temp_dir)
 
-def execute_modulo(args, test_command = True):
+def execute_modulo(args, test_command = True, expected_returncode=0):
     # Get the name of the calling test function
     test_name = sys._getframe().f_back.f_code.co_name
     
@@ -70,12 +70,13 @@ def execute_modulo(args, test_command = True):
     try:
         test_output = subprocess.check_output(args)
     except subprocess.CalledProcessError as call_error:
-        print '***'
-        print "Error in test: " + test_name
-        print "Return code: %d" % call_error.returncode
-        print "Error output: " + call_error.output
-        print '***'
         test_output = call_error.output
+        if call_error.returncode != expected_returncode:
+            print '***'
+            print "Error in test: " + test_name
+            print "Return code: %d" % call_error.returncode
+            print "Error output: " + call_error.output
+            print '***'
 
     return test_output
 
@@ -236,6 +237,12 @@ def test_remove_dependency():
         passed = compare_file_content(expected_results.MODULO_SPEC_FILENAME, expected_results.MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT)
     update_test_stats(passed)
 
+def test_remove_failure_one():
+    output = execute_modulo(['add', expected_results.MODULO_REMOVE_FAILURE_ONE_GIT_REPO_URL], False)
+    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_FAILURE_ONE_DEPENDENCY_NAME], expected_returncode=1)
+    passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_ONE_OUTPUT, 'output')
+    update_test_stats(passed)
+
 def test_update_dependency():
     output = execute_modulo(['add', expected_results.MODULO_UPDATE_START_GIT_REPO_URL], False)
     # Update one of the dependencies via a separate clone
@@ -264,7 +271,7 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_update_dependency, test_list)
+    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_remove_failure_one, test_update_dependency, test_list)
     total_tests = len(all_tests)
     
     # Execute tests
