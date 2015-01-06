@@ -70,8 +70,9 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     
     MODSpecModel *specModel = [[MODSpecModel alloc] init];
     specModel.pathToModel = path;
-    if (![specModel loadSpecification])
-        sderror(@"Unable to load %@", path);
+    [specModel loadSpecification];
+    //if (![specModel loadSpecification])
+        //sderror(@"Unable to load %@", path);
 
     return specModel;
 }
@@ -129,7 +130,10 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     
     [[SDDataMap map] mapObject:specDict toObject:self];
     if (self.name == nil)
+    {
+        self.name = [filePath lastPathComponent];
         return NO;
+    }
     
     return YES;
 }
@@ -176,11 +180,6 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
         result = YES;
     
     return result;
-}
-
-- (NSString *)debugDescription
-{
-    return @"Hello";
 }
 
 - (NSUInteger)hash
@@ -269,6 +268,13 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     }
     
     return nil;
+}
+
+- (id)debugQuickLookObject
+{
+    if (self.name)
+        return self.name;
+    return @"Uninitialized";
 }
 
 - (NSArray<NSString> *)namesThatDependOn:(NSString *)name
