@@ -425,11 +425,16 @@ completionLabel:
 - (NSArray<NSString> *)uncleanDependenciesForName:(NSString *)name
 {
     NSMutableArray *uncleanDeps = [NSMutableArray array];
-    NSArray *deps = nil;
+    NSMutableArray *deps = [NSMutableArray array];
     if (name && name.length > 0)
-        deps = [[MODSpecModel sharedInstance] namesThatDependOn:name];
+    {
+        [deps addObject:name]; // Check the top level dependency also
+        [deps addObjectsFromArray:[[MODSpecModel sharedInstance] namesThatDependOn:name]];
+    }
     else
-        deps = [[MODSpecModel sharedInstance] dependencyNames];
+    {
+        [deps addObjectsFromArray:[[MODSpecModel sharedInstance] dependencyNames]];
+    }
     
     for (NSString *item in deps)
     {
