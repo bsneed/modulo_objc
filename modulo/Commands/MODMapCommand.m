@@ -77,14 +77,14 @@
 
 - (void)dependencyMapFromSpec:(MODSpecModel *)startSpec spacing:(NSUInteger)spacing
 {
-    //sdprintln(@"%@", startSpec.name);
+    /*//sdprintln(@"%@", startSpec.name);
     for (MODSpecModel *item in startSpec.dependencies)
     {
         NSString *paddedName = [NSString stringWithFormat:@"%*s%@", (int)spacing, "", item.name];
         
         MODSpecModel *temp = [MODSpecModel instanceFromName:item.name];
         [self flatDependencyListFromSpec:temp output:output];
-    }
+    }*/
 }
 
 @end
