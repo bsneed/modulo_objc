@@ -50,7 +50,7 @@
         sderror(@"There is no module named %@.", moduleName);
     }
     
-    NSArray *deps = instance.dependencies;
+    NSArray *deps = [self flatDependencyList];
     
     if (deps.count == 0)
     {
@@ -90,5 +90,27 @@
 {
     return @"Shows all module dependencies in a flat listing.";
 }
+
+#pragma mark - Utility methods
+
+- (NSArray<MODSpecModel> *)flatDependencyList
+{
+    NSMutableSet *output = [NSMutableSet set];
+    [self flatDependencyListFromSpec:[MODSpecModel sharedInstance] output:output];
+    
+    NSArray<MODSpecModel> *result = (NSArray<MODSpecModel> *)[output allObjects];
+    return result;
+}
+
+- (void)flatDependencyListFromSpec:(MODSpecModel *)startSpec output:(NSMutableSet *)output
+{
+    [output addObjectsFromArray:startSpec.dependencies];
+    for (MODSpecModel *item in startSpec.dependencies)
+    {
+        MODSpecModel *temp = [MODSpecModel instanceFromName:item.name];
+        [self flatDependencyListFromSpec:temp output:output];
+    }
+}
+
 
 @end
