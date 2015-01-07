@@ -73,13 +73,22 @@ MODULO_REMOVE_DEPENDENCY_SPEC_FILE_CONTENT = """{
   "dependenciesPath" : "dependencies"
 }"""
 
-# Remove Failure
+# Remove Failure One
 MODULO_REMOVE_FAILURE_ONE_GIT_REPO_URL = 'git@github.com:setdirection/SDDataMap.git'
 MODULO_REMOVE_FAILURE_ONE_DEPENDENCY_NAME = 'SDFoundation'
 MODULO_REMOVE_FAILURE_ONE_OUTPUT = """Unable to remove SDFoundation.
 
 The following modules still depend on it:
     SDDataMap
+
+"""
+
+# Remove Failure Two
+MODULO_REMOVE_FAILURE_TWO_GIT_REPO_URL = 'git@github.com:setdirection/SDFoundation.git'
+MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_NAME = 'SDFoundation'
+MODULO_REMOVE_FAILURE_TWO_LICENSE_FILENAME = "dependencies/" + MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_NAME + "/LICENSE"
+MODULO_REMOVE_FAILURE_TWO_OUTPUT = """Unable to proceed.  The following modules have unpushed commits, stashes, or changes:
+    SDFoundation
 
 """
 

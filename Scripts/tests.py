@@ -243,6 +243,17 @@ def test_remove_failure_one():
     passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_ONE_OUTPUT, 'output')
     update_test_stats(passed)
 
+def test_remove_failure_two():
+    output = execute_modulo(['add', expected_results.MODULO_REMOVE_FAILURE_TWO_GIT_REPO_URL], False)
+    
+    dependency_spec_file = open(expected_results.MODULO_REMOVE_FAILURE_TWO_LICENSE_FILENAME, 'w')
+    dependency_spec_file.write('\n\n\n\n');
+    dependency_spec_file.close()
+    
+    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_NAME], expected_returncode=1)
+    passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_TWO_OUTPUT, 'output')
+    update_test_stats(passed)
+
 def test_update_dependency():
     output = execute_modulo(['add', expected_results.MODULO_UPDATE_START_GIT_REPO_URL], False)
     # Update one of the dependencies via a separate clone
@@ -271,7 +282,8 @@ if __name__ == "__main__":
     setup(TEST_DIR_PATH)
     
     # Set up tests. The ordering is important to the expected results.
-    all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_remove_failure_one, test_update_dependency, test_list)
+    # all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_remove_failure_one, test_remove_failure_two, test_update_dependency, test_list)
+    all_tests = (test_default, test_init, test_remove_failure_two)
     total_tests = len(all_tests)
     
     # Execute tests
