@@ -109,8 +109,11 @@ def compare_file_content(filename, expected):
     return compare_content(file_content, expected, expected_results.MODULO_SPEC_FILENAME)
 
 def update_test_stats(passed):
+    global total_tests
     global total_tests_passed
     global total_tests_failed
+    
+    total_tests += 1
     
     if passed:
         print "PASSED"
@@ -243,12 +246,33 @@ def test_remove_failure_one():
     passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_ONE_OUTPUT, 'output')
     update_test_stats(passed)
 
-def test_remove_failure_two():
+def test_remove_failure_two_and_three():
     output = execute_modulo(['add', expected_results.MODULO_REMOVE_FAILURE_TWO_GIT_REPO_URL], False)
     
+    # Change to dependency dir
+    os.chdir(expected_results.MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_FOLDER)
+    
+    print "Changing file for test in " + os.getcwd()
     dependency_spec_file = open(expected_results.MODULO_REMOVE_FAILURE_TWO_LICENSE_FILENAME, 'w')
     dependency_spec_file.write('\n\n\n\n');
     dependency_spec_file.close()
+    
+    # Return to working dir
+    os.chdir(actual_test_dir)
+    
+    output = execute_modulo(['remove', expected_results.MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_NAME], expected_returncode=1)
+    passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_TWO_OUTPUT, 'output')
+    update_test_stats(passed)
+
+    # Change to dependency dir
+    os.chdir(expected_results.MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_FOLDER)
+    
+    print "Executing git commands to commit changed file for test in " + os.getcwd()
+    subprocess.call(['git', 'add', '.'])
+    subprocess.call(['git', 'commit', '-m', 'Updated file for test.'])
+    
+    # Return to working dir
+    os.chdir(actual_test_dir)
     
     output = execute_modulo(['remove', expected_results.MODULO_REMOVE_FAILURE_TWO_DEPENDENCY_NAME], expected_returncode=1)
     passed = compare_content(output, expected_results.MODULO_REMOVE_FAILURE_TWO_OUTPUT, 'output')
@@ -283,8 +307,7 @@ if __name__ == "__main__":
     
     # Set up tests. The ordering is important to the expected results.
     # all_tests = (test_default, test_init, test_list_default, test_add_dependency, test_branch, test_remove_dependency, test_remove_failure_one, test_remove_failure_two, test_update_dependency, test_list)
-    all_tests = (test_default, test_init, test_remove_failure_two)
-    total_tests = len(all_tests)
+    all_tests = (test_default, test_init, test_remove_failure_two_and_three)
     
     # Execute tests
     print
