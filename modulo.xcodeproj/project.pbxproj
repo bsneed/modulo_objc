@@ -78,6 +78,8 @@
 		224150F41A1A6845003EFB13 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		224150F51A1A6845003EFB13 /* modulo_tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = modulo_tests.m; sourceTree = "<group>"; };
 		224150FA1A1A68B7003EFB13 /* MODProcessorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODProcessorTest.m; sourceTree = "<group>"; };
+		22E9F5051A5F38BB00FE175C /* expected_results.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = expected_results.py; sourceTree = "<group>"; };
+		22E9F5071A5F38BB00FE175C /* tests.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = tests.py; sourceTree = "<group>"; };
 		CA07B5221A57290C001E45DF /* MODMapCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MODMapCommand.h; sourceTree = "<group>"; };
 		CA07B5231A57290C001E45DF /* MODMapCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MODMapCommand.m; sourceTree = "<group>"; };
 		CA44AFF2199E79CB00AE1A15 /* modulo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = modulo; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -172,9 +174,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		22E9F5041A5F38BB00FE175C /* TestScripts */ = {
+			isa = PBXGroup;
+			children = (
+				22E9F5051A5F38BB00FE175C /* expected_results.py */,
+				22E9F5071A5F38BB00FE175C /* tests.py */,
+			);
+			path = TestScripts;
+			sourceTree = "<group>";
+		};
 		CA44AFE9199E79CB00AE1A15 = {
 			isa = PBXGroup;
 			children = (
+				22E9F5041A5F38BB00FE175C /* TestScripts */,
 				CA44AFF4199E79CB00AE1A15 /* modulo */,
 				224150F21A1A6845003EFB13 /* modulo-tests */,
 				CA44AFF3199E79CB00AE1A15 /* Products */,
