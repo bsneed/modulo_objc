@@ -56,8 +56,8 @@ GENERICSABLE_IMPLEMENTATION(MODSpecModel)
     dispatch_once(&onceToken, ^{
         __sharedInstance = [[MODSpecModel alloc] init];
         __sharedInstance.pathToModel = [[SDCommandLineParser sharedInstance].startingWorkingPath stringByAppendingPathComponent:@"modulo.spec"];
-        if (![__sharedInstance loadSpecification])
-            sderror(@"Unable to load %@", __sharedInstance.pathToModel);
+        [__sharedInstance loadSpecification];//)
+        //    sderror(@"Unable to load %@", __sharedInstance.pathToModel);
     });
     
     return __sharedInstance;
