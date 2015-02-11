@@ -8,6 +8,10 @@
 
 #import "MODInitCommand.h"
 
+static NSString *DEPENDENCIES_FOLDER_NAME = @"modules";
+static NSString *INITIAL_BRANCH_NAME      = @"master";
+static NSString *COMMAND_HELP             = @"help"; // This should be an extern
+
 @implementation MODInitCommand
 
 - (NSSet<NSString> *)supportedOptions
@@ -24,7 +28,7 @@
     BOOL result = NO;
 
     // they just want help, bestow it upon them.
-    if ([self hasOption:@"help"])
+    if ([self hasOption:COMMAND_HELP])
         result = YES;
     else
     {
@@ -38,7 +42,7 @@
 
 - (void)performCommand
 {
-    if ([self hasOption:@"help"])
+    if ([self hasOption:COMMAND_HELP])
     {
         [self printHelp];
         return;
@@ -49,11 +53,11 @@
     {
         [MODSpecModel sharedInstance].dependenciesPath = @"../";
         [MODSpecModel sharedInstance].sourcePath = [MODSpecModel sharedInstance].name;
-        [MODSpecModel sharedInstance].initialBranch = @"master";
+        [MODSpecModel sharedInstance].initialBranch = INITIAL_BRANCH_NAME;
     }
     else
     {
-        [MODSpecModel sharedInstance].dependenciesPath = @"dependencies";
+        [MODSpecModel sharedInstance].dependenciesPath = DEPENDENCIES_FOLDER_NAME;
     }
     
     if ([[MODSpecModel sharedInstance] saveSpecification])
@@ -68,14 +72,14 @@
 
 - (void)printHelp
 {
-    if ([MODSpecModel sharedInstance].name && ![self hasOption:@"help"])
+    if ([MODSpecModel sharedInstance].name && ![self hasOption:COMMAND_HELP])
     {
         sdprintln(@"This directory has already been initialized for use with modulo.");
     }
     else
     {
         sdprintln(@"usage: modulo init [--module] [--verbose]");
-        sdprintln(@"       modulo init --help");
+        sdprintln([NSString stringWithFormat:@"       modulo init --%@", COMMAND_HELP]);
     }
 }
 
